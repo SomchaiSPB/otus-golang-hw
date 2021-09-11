@@ -34,7 +34,7 @@ func Unpack(s string) (string, error) {
 			return "", ErrInvalidString
 		}
 
-		if isSlash(prev) && unicode.IsNumber(cur) && slashCounter % 2 == 1 {
+		if isSlash(prev) && unicode.IsNumber(cur) && slashCounter%2 == 1 {
 			isEscaped = true
 		}
 
@@ -48,7 +48,7 @@ func Unpack(s string) (string, error) {
 				result += string(cur)
 			} else {
 				cur, _ := strconv.ParseInt(string(cur), 10, 32)
-				result += strings.Repeat(string(runeArr[i-1]), int(cur) - 1)
+				result += strings.Repeat(string(runeArr[i-1]), int(cur)-1)
 			}
 		} else if isSlash(cur) {
 			slashCounter++
@@ -56,7 +56,7 @@ func Unpack(s string) (string, error) {
 				prev = cur
 				continue
 			}
-			if isSlash(prev) && slashCounter %2 == 0 {
+			if isSlash(prev) && slashCounter%2 == 0 {
 				result += string(cur)
 				prev = cur
 				continue
