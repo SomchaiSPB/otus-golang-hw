@@ -1,4 +1,4 @@
-module github.com/SomchaiSPB/otus-golang-hw/hw01_hello_otus
+module github.com/SomchaiSPB/otus-golang-hw/hw02_unpack_string
 
 go 1.16
 
