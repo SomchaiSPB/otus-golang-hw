@@ -16,9 +16,7 @@ func Unpack(s string) (string, error) {
 	if !unicode.IsLetter(rune(s[0])) {
 		return "", ErrInvalidString
 	}
-
 	runeArr := s
-
 	var result string
 	var prev rune
 	isEscaped := false
@@ -65,13 +63,11 @@ func Unpack(s string) (string, error) {
 			result += string(cur)
 			slashCounter = 0
 		}
-
 		prev = cur
 	}
 
 	return result, nil
 }
-
 func isSlash(r rune) bool {
 	return r == 92
 }
