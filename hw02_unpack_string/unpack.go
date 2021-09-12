@@ -9,11 +9,13 @@ import (
 
 var ErrInvalidString = errors.New("invalid string")
 
+const SLASH rune = 92
+
 func Unpack(s string) (string, error) {
 	if len(s) == 0 {
 		return "", nil
 	}
-	if !unicode.IsLetter(rune(s[0])) {
+	if unicode.IsNumber(rune(s[0])) {
 		return "", ErrInvalidString
 	}
 	runeArr := s
@@ -65,9 +67,9 @@ func Unpack(s string) (string, error) {
 		}
 		prev = cur
 	}
-
 	return result, nil
 }
+
 func isSlash(r rune) bool {
-	return r == 92
+	return r == SLASH
 }
