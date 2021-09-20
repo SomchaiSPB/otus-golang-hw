@@ -6,7 +6,7 @@ import (
 )
 
 type FrequentWords struct {
-	Key string
+	Key   string
 	Value int
 }
 
@@ -46,7 +46,7 @@ func Top10(input string) []string {
 	tempMap := make(map[string]int)
 
 	for _, word := range words {
-		tempMap[word] = tempMap[word] + 1
+		tempMap[word]++
 	}
 
 	return rankWordTop(tempMap).ToStringArray(10)
