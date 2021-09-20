@@ -40,17 +40,18 @@ func (l List) ToStringArray() []string {
 func Top10(input string) []string {
 	words := strings.Fields(input)
 	tempMap := make(map[string]int)
-    //var	sortedResult []string
+    var	sortedResult []string
 
 	for _, word := range words {
 		tempMap[word] = tempMap[word] + 1
 	}
 
 	tempResult := rankWordTop(tempMap)
+	tempIntArr := make(map[int][]string)
 
-	//for key, val := range tempResult {
-	//	sortedResult
-	//}
+	for key, val := range tempResult {
+
+	}
 
 	return tempResult.ToStringArray()[:10]
 }
