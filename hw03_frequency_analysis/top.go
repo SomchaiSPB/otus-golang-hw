@@ -56,8 +56,8 @@ func rankWordTop(dict map[string]int) List {
 	result := make(List, len(dict))
 	count := 0
 
-	for key, word := range dict {
-		result[count] = FrequentWords{key, word}
+	for word, cnt := range dict {
+		result[count] = FrequentWords{word, cnt}
 		count++
 	}
 
