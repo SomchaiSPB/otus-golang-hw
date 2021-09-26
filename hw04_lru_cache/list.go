@@ -17,7 +17,6 @@ type ListItem struct {
 }
 
 type list struct {
-	List // Remove me after realization.
 	head *ListItem
 	tail *ListItem
 	len  int

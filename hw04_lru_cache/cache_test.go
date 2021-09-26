@@ -77,3 +77,14 @@ func TestCacheMultithreading(t *testing.T) {
 
 	wg.Wait()
 }
+
+func TestCanSetAndGetCacheItems(t *testing.T) {
+	c := NewCache(5)
+
+	c.Set("test_key", 122)
+
+	res, ok := c.Get("test_key")
+
+	require.True(t, ok)
+	require.Equal(t, 122, res)
+}
