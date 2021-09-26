@@ -49,3 +49,72 @@ func TestList(t *testing.T) {
 		require.Equal(t, []int{70, 80, 60, 40, 10, 30, 50}, elems)
 	})
 }
+
+func TestCanAddToLinkedListHead(t *testing.T) {
+	l := NewList()
+
+	l.PushFront(1)
+	l.PushFront(2)
+	l.PushFront(3)
+
+	require.Equal(t, 3, l.Len())
+	require.Equal(t, 3, l.Front().Value)
+	require.Equal(t, 1, l.Back().Value)
+}
+
+func TestCanAddToLinkedListTail(t *testing.T) {
+	l := NewList()
+
+	l.PushBack(10)
+	l.PushBack(20)
+	l.PushBack(30)
+	l.PushBack(40)
+
+	require.Equal(t, 4, l.Len())
+	require.Equal(t, 10, l.Front().Value)
+	require.Equal(t, 40, l.Back().Value)
+}
+
+func TestCanRemoveElementFromList(t *testing.T) {
+	l := NewList()
+
+	l.PushBack(10)
+	l.PushBack(20)
+	l.PushBack(30)
+	l.PushBack(40)
+
+	l.Remove(l.Front().Next)
+
+	require.Equal(t, 3, l.Len())
+	require.Equal(t, 10, l.Front().Value)
+	require.Equal(t, 30, l.Front().Next.Value)
+	require.Equal(t, 40, l.Back().Value)
+}
+
+func TestCanMoveItemToFront(t *testing.T) {
+	l := NewList()
+
+	l.PushFront(1)
+	l.PushFront(2)
+	l.PushFront(3)
+	l.PushFront(4)
+
+	l.MoveToFront(l.Back())
+
+	require.Equal(t, 1, l.Front().Value)
+	require.Equal(t, 4, l.Front().Next.Value)
+	require.Equal(t, 2, l.Back().Value)
+
+	ll := NewList()
+
+	ll.PushFront(1)
+	ll.PushFront(2)
+	ll.PushFront(3)
+	ll.PushFront(4)
+
+	ll.MoveToFront(ll.Back().Prev)
+
+	require.Equal(t, 2, ll.Front().Value)
+	require.Equal(t, 4, ll.Front().Next.Value)
+	require.Equal(t, 1, ll.Back().Value)
+}
