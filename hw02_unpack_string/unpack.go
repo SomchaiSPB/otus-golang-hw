@@ -43,7 +43,6 @@ func Unpack(s string) (string, error) {
 			result.WriteString(strings.Repeat(string(runeArr[i-1]), int(cur)-1))
 		} else {
 			result.WriteRune(cur)
-			//result += string(cur)
 		}
 		prev = cur
 	}
