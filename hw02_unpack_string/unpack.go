@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 )
 
 var ErrInvalidString = errors.New("invalid string")
@@ -13,7 +14,8 @@ func Unpack(s string) (string, error) {
 	if len(s) == 0 {
 		return "", nil
 	}
-	if unicode.IsNumber(rune(s[0])) {
+	firstRune, _ := utf8.DecodeRuneInString(s)
+	if unicode.IsNumber(firstRune) {
 		return "", ErrInvalidString
 	}
 	runeArr := []rune(s)
