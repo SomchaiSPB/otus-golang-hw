@@ -28,7 +28,7 @@ func (l List) Swap(i int, j int) {
 }
 
 func (l List) ToStringArray(size int) []string {
-	output := make([]string, len(l))
+	output := make([]string, 0)
 
 	for i := 0; i < size; i++ {
 		output = append(output, l[i].Key)
