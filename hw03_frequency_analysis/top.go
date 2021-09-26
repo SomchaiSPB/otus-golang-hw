@@ -28,13 +28,13 @@ func (l List) Swap(i int, j int) {
 }
 
 func (l List) ToStringArray(size int) []string {
-	output := make([]string, 0)
+	output := make([]string, len(l))
 
-	for _, val := range l {
-		output = append(output, val.Key)
+	for i := 0; i < size; i++ {
+		output = append(output, l[i].Key)
 	}
 
-	return output[:size]
+	return output
 }
 
 func Top10(input string) []string {
