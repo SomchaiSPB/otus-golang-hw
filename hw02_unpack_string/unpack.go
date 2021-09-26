@@ -13,65 +13,39 @@ func Unpack(s string) (string, error) {
 	if len(s) == 0 {
 		return "", nil
 	}
-	if !unicode.IsLetter(rune(s[0])) {
+	if unicode.IsNumber(rune(s[0])) {
 		return "", ErrInvalidString
 	}
-
-	runeArr := s
-
-	var result string
+	runeArr := []rune(s)
+	var result strings.Builder
 	var prev rune
-	isEscaped := false
-	slashCounter := 0
 
 	for i, cur := range runeArr {
 		if i < 1 {
 			prev = cur
-			result += string(cur)
+			result.WriteRune(cur)
 			continue
 		}
-		if unicode.IsNumber(prev) && unicode.IsNumber(cur) && !isEscaped {
+		if unicode.IsNumber(prev) && unicode.IsNumber(cur) {
 			return "", ErrInvalidString
-		}
-
-		if isSlash(prev) && unicode.IsNumber(cur) && slashCounter % 2 == 1 {
-			isEscaped = true
 		}
 
 		if unicode.IsNumber(cur) {
 			if cur == 48 {
-				result = result[:i-1]
+				s := []rune(result.String())
+				s = s[:i-1]
+				result.Reset()
+				result.WriteString(string(s))
 				continue
 			}
 
-			if isSlash(prev) && isEscaped {
-				result += string(cur)
-			} else {
-				cur, _ := strconv.ParseInt(string(cur), 10, 32)
-				result += strings.Repeat(string(runeArr[i-1]), int(cur) - 1)
-			}
-		} else if isSlash(cur) {
-			slashCounter++
-			if !isSlash(prev) {
-				prev = cur
-				continue
-			}
-			if isSlash(prev) && slashCounter %2 == 0 {
-				result += string(cur)
-				prev = cur
-				continue
-			}
+			cur, _ := strconv.ParseInt(string(cur), 10, 32)
+			result.WriteString(strings.Repeat(string(runeArr[i-1]), int(cur)-1))
 		} else {
-			result += string(cur)
-			slashCounter = 0
+			result.WriteRune(cur)
+			//result += string(cur)
 		}
-
 		prev = cur
 	}
-
-	return result, nil
-}
-
-func isSlash(r rune) bool {
-	return r == 92
+	return result.String(), nil
 }

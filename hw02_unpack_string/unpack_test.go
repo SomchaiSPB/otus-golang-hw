@@ -2,7 +2,6 @@ package hw02unpackstring
 
 import (
 	"errors"
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -17,18 +16,20 @@ func TestUnpack(t *testing.T) {
 		{input: "abccd", expected: "abccd"},
 		{input: "", expected: ""},
 		{input: "aaa0b", expected: "aab"},
+		{input: "фв3ае2", expected: "фввваее"},
+		{input: "жжжж1п3", expected: "жжжжппп"},
+		{input: "вааа0йцук3", expected: "ваайцуккк"},
 		// uncomment if task with asterisk completed
-		{input: `qwe\4\5`, expected: `qwe45`},
-		{input: `qwe\45`, expected: `qwe44444`},
-		{input: `qwe\\5`, expected: `qwe\\\\\`},
-		{input: `qwe\\\3`, expected: `qwe\3`},
+		// {input: `qwe\4\5`, expected: `qwe45`},
+		// {input: `qwe\45`, expected: `qwe44444`},
+		// {input: `qwe\\5`, expected: `qwe\\\\\`},
+		// {input: `qwe\\\3`, expected: `qwe\3`},
 	}
 
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.input, func(t *testing.T) {
 			result, err := Unpack(tc.input)
-			fmt.Println(result)
 			require.NoError(t, err)
 			require.Equal(t, tc.expected, result)
 		})
@@ -36,7 +37,7 @@ func TestUnpack(t *testing.T) {
 }
 
 func TestUnpackInvalidString(t *testing.T) {
-	invalidStrings := []string{"3abc", "45", "aaa10b"}
+	invalidStrings := []string{"3abc", "45", "aaa10b", "2ку"}
 	for _, tc := range invalidStrings {
 		tc := tc
 		t.Run(tc, func(t *testing.T) {
