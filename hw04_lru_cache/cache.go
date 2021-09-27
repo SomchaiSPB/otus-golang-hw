@@ -38,37 +38,35 @@ func (c *lruCache) Set(key Key, value interface{}) bool {
 		c.queue.MoveToFront(c.items[key])
 		flag = true
 	}
+
 	newCacheItem := &cacheItem{
 		key: key.String(),
 		value: value,
 	}
 
-	newListItem := new(ListItem)
-	newListItem.Value = newCacheItem
-
-	if c.capacity < c.queue.Len() {
+	if c.capacity == c.queue.Len() {
 		lastItem := c.queue.Back()
 		key := lastItem.Value.(*cacheItem).key
 		c.items[Key(key)] = nil
 		c.queue.Remove(lastItem)
 	}
 
-	c.queue.PushFront(newCacheItem)
-	c.items[key] = newListItem
+	listNode := c.queue.PushFront(newCacheItem)
+	c.items[key] = listNode
 
 	return flag
 }
 
 func (c *lruCache) Get(key Key) (interface{}, bool) {
-	res, ok := c.items[key]
+	listNode, ok := c.items[key]
 
 	if !ok {
 		return nil, false
 	}
 
-	c.queue.MoveToFront(res)
+	c.queue.MoveToFront(listNode)
 
-	return res.Value.(*cacheItem).value, ok
+	return listNode.Value.(*cacheItem).value, ok
 }
 
 func (c *lruCache) Clear()  {

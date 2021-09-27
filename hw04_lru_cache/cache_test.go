@@ -82,9 +82,13 @@ func TestCanSetAndGetCacheItems(t *testing.T) {
 	c := NewCache(5)
 
 	c.Set("test_key", 122)
+	c.Set("test_key_2", 900)
 
 	res, ok := c.Get("test_key")
-
 	require.True(t, ok)
 	require.Equal(t, 122, res)
+
+	res, ok = c.Get("test_key_2")
+	require.True(t, ok)
+	require.Equal(t, 900, res)
 }
