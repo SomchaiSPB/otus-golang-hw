@@ -39,16 +39,14 @@ func NewCache(capacity int) Cache {
 func (c *lruCache) Set(key Key, value interface{}) bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	flag := false
-	if _, ok := c.Get(key); ok {
-		c.items[key].Value = value
-		c.queue.MoveToFront(c.items[key])
-		flag = true
-	}
-
 	newCacheItem := &cacheItem{
 		key: key.String(),
 		value: value,
+	}
+	if _, ok := c.Get(key); ok {
+		c.items[key].Value = newCacheItem
+
+		return false
 	}
 
 	if c.capacity == c.queue.Len() {
@@ -60,12 +58,14 @@ func (c *lruCache) Set(key Key, value interface{}) bool {
 
 	listNode := c.queue.PushFront(newCacheItem)
 	c.items[key] = listNode
-	return flag
+	c.items[key] = listNode
+
+	return true
 }
 
 func (c *lruCache) Get(key Key) (interface{}, bool) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	//c.mu.Lock()
+	//defer c.mu.Unlock()
 	listNode, ok := c.items[key]
 
 	if !ok {

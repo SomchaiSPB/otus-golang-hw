@@ -89,6 +89,16 @@ func (l *list) Remove(i *ListItem) {
 	if l.len == 0 {
 		return
 	}
+	if l.Back() == i {
+		l.tail = i.Prev
+		i.Prev.Next = nil
+		return
+	}
+	if l.Front() == i {
+		l.head = i.Next
+		i.Next.Prev = nil
+		return
+	}
 
 	i.Prev.Next = i.Next
 	i.Next.Prev = i.Prev
@@ -97,16 +107,16 @@ func (l *list) Remove(i *ListItem) {
 }
 
 func (l *list) MoveToFront(i *ListItem) {
-	if l.len == 0 || l.head.Value == i.Value {
+	if l.len == 1 || l.head == i {
 		return
 	}
 	if l.Back() == i {
 		i.Prev.Next = nil
 		i.Prev.Prev = i
-		l.tail = i.Prev
-		i.Prev = nil
 		i.Next = l.head
+		l.tail = i.Prev
 		l.head = i
+		i.Prev = nil
 		return
 	}
 

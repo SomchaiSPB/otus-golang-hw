@@ -105,6 +105,15 @@ func TestCanMoveItemToFront(t *testing.T) {
 	require.Equal(t, 4, l.Front().Next.Value)
 	require.Equal(t, 2, l.Back().Value)
 
+	// 1 - 4 - 3 - 2
+	// 3 - 1 - 4 - 2
+	l.MoveToFront(l.Back().Prev)
+
+	require.Equal(t, 3, l.Front().Value)
+	require.Equal(t, 1, l.Front().Next.Value)
+	require.Equal(t, 4, l.Back().Prev.Value)
+	require.Equal(t, 2, l.Back().Value)
+
 	ll := NewList()
 
 	ll.PushFront(1)
