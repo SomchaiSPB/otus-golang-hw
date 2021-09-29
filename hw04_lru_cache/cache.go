@@ -42,7 +42,7 @@ func (c *lruCache) Set(key Key, value interface{}) bool {
 	if _, ok := c.Get(key); ok {
 		c.items[key].Value = newCacheItem
 
-		return false
+		return true
 	}
 
 	if c.capacity == c.queue.Len() {
@@ -56,7 +56,7 @@ func (c *lruCache) Set(key Key, value interface{}) bool {
 	c.items[key] = listNode
 	c.items[key] = listNode
 
-	return true
+	return false
 }
 
 func (c *lruCache) Get(key Key) (interface{}, bool) {
