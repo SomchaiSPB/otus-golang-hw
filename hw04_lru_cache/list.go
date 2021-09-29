@@ -48,10 +48,8 @@ func (l *list) PushFront(v interface{}) *ListItem {
 		l.tail = newListItem
 	} else {
 		current := l.head
-		for current.Prev != nil {
-			current = current.Prev
-		}
 		newListItem.Next = current
+		newListItem.Prev = nil
 		current.Prev = newListItem
 		l.head = newListItem
 	}
@@ -70,12 +68,9 @@ func (l *list) PushBack(v interface{}) *ListItem {
 		l.head = newListItem
 		l.tail = newListItem
 	} else {
-		current := l.head
-		for current.Next != nil {
-			current = current.Next
-		}
-		newListItem.Prev = current
+		current := l.tail
 		current.Next = newListItem
+		newListItem.Prev = current
 		newListItem.Next = nil
 		l.tail = newListItem
 	}
@@ -112,9 +107,9 @@ func (l *list) MoveToFront(i *ListItem) {
 	}
 	if l.Back() == i {
 		i.Prev.Next = nil
-		i.Prev.Prev = i
 		i.Next = l.head
 		l.tail = i.Prev
+		l.head.Prev = i
 		l.head = i
 		i.Prev = nil
 		return
@@ -124,5 +119,6 @@ func (l *list) MoveToFront(i *ListItem) {
 	i.Next.Prev = i.Prev
 	i.Prev = nil
 	i.Next = l.head
+	l.head.Prev = i
 	l.head = i
 }

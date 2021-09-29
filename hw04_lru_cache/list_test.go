@@ -60,6 +60,7 @@ func TestCanAddToLinkedListHead(t *testing.T) {
 	require.Equal(t, 3, l.Len())
 	require.Equal(t, 3, l.Front().Value)
 	require.Equal(t, 1, l.Back().Value)
+	require.Equal(t, 2, l.Front().Next.Value)
 }
 
 func TestCanAddToLinkedListTail(t *testing.T) {
@@ -113,6 +114,9 @@ func TestCanMoveItemToFront(t *testing.T) {
 	require.Equal(t, 1, l.Front().Next.Value)
 	require.Equal(t, 4, l.Back().Prev.Value)
 	require.Equal(t, 2, l.Back().Value)
+	require.Nil(t, l.Front().Prev)
+	require.Nil(t, l.Back().Next)
+	require.Equal(t, 3, l.Front().Next.Prev.Value)
 
 	ll := NewList()
 

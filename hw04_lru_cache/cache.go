@@ -64,8 +64,8 @@ func (c *lruCache) Set(key Key, value interface{}) bool {
 }
 
 func (c *lruCache) Get(key Key) (interface{}, bool) {
-	//c.mu.Lock()
-	//defer c.mu.Unlock()
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	listNode, ok := c.items[key]
 
 	if !ok {
@@ -78,6 +78,8 @@ func (c *lruCache) Get(key Key) (interface{}, bool) {
 }
 
 func (c *lruCache) Clear()  {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	c.items = make(map[Key]*ListItem, c.capacity)
 	c.queue = NewList()
 }
