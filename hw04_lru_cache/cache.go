@@ -54,7 +54,6 @@ func (c *lruCache) Set(key Key, value interface{}) bool {
 
 	listNode := c.queue.PushFront(newCacheItem)
 	c.items[key] = listNode
-	c.items[key] = listNode
 
 	return false
 }
