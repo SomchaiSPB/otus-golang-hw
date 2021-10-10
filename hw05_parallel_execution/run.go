@@ -20,12 +20,6 @@ func (c *counter) increment() {
 	c.errCount++
 }
 
-func (c *counter) decrement() {
-	c.Lock()
-	defer c.Unlock()
-	c.errCount--
-}
-
 var wg sync.WaitGroup
 
 // Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
@@ -71,5 +65,4 @@ func Run(tasks []Task, n, m int) error {
 	default:
 		return nil
 	}
-
 }
