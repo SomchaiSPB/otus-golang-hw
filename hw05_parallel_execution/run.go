@@ -24,7 +24,7 @@ var wg sync.WaitGroup
 
 // Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
 func Run(tasks []Task, n, m int) error {
-	var in = make(chan Task, len(tasks))
+	in := make(chan Task, len(tasks))
 	out := make(chan struct{}, 1)
 	counter := new(counter)
 
@@ -39,10 +39,8 @@ func Run(tasks []Task, n, m int) error {
 			defer wg.Done()
 			for task := range in {
 				if counter.errCount >= m {
-					select {
-					case out <- struct{}{}:
-						close(out)
-					}
+					out <- struct{}{}
+					close(out)
 				}
 				err := task()
 				if err != nil {
