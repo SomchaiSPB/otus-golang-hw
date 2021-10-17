@@ -9,29 +9,28 @@ var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 
 type Task func() error
 
-type counter struct {
+type Counter struct {
 	sync.RWMutex
 	errCount int
 }
 
-func (c *counter) increment() {
+func (c *Counter) increment() {
 	c.Lock()
 	defer c.Unlock()
 	c.errCount++
 }
 
-func (c *counter) getCount() int {
+func (c *Counter) getCount() int {
 	c.RLock()
 	defer c.RUnlock()
 	return c.errCount
 }
 
-func NewCounter() *counter {
-	return new(counter)
+func NewCounter() *Counter {
+	return new(Counter)
 }
 
 var wg sync.WaitGroup
-//var mu sync.Mutex
 
 // Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
 func Run(tasks []Task, n, m int) error {
@@ -54,7 +53,6 @@ func Run(tasks []Task, n, m int) error {
 					close(out)
 				}
 				err := task()
-
 				if err != nil {
 					(*counter).increment()
 				}
