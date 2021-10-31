@@ -6,42 +6,69 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 var (
 	ErrUnsupportedFile       = errors.New("unsupported originalFile")
 	ErrOffsetExceedsFileSize = errors.New("offset exceeds originalFile size")
-	ErrorOpenFile = errors.New("file open failed")
-	ErrorreateFile = errors.New("file create failed")
-	originalFile *os.File
+	ErrUnknownOriginalFileSize = errors.New("original file size unknown")
+	ErrorOpenFile   = errors.New("file open failed")
+	ErrorCreateFile = errors.New("file create failed")
+	originalFile    *os.File
 	targetFile *os.File
-	tmpFile *os.File
 )
 
+//type fileChecker interface {
+//	checkFile()
+//}
+//
+//type originalFile struct {
+//	originalFile    *os.File
+//}
+//
+//func (f originalFile) check()  {
+//	fileInfo, _ := f.Stat()
+//	if ErrorOpenFile != nil {
+//		if os.IsNotExist(ErrorOpenFile) {
+//			return ErrorOpenFile
+//		}
+//	}
+//}
+//
+//type targetFile struct {
+//	targetFile *os.File
+//}
+
 func Copy(fromPath, toPath string, offset, limit int64) error {
+	if filepath.Ext(fromPath) == "" {
+		log.Printf("unsupported originalFile %v", fromPath)
+		return ErrUnsupportedFile
+	}
 	originalFile, ErrorOpenFile = os.Open(fromPath)
+	fileInfo, _ := originalFile.Stat()
 	if ErrorOpenFile != nil {
 		if os.IsNotExist(ErrorOpenFile) {
 			return ErrorOpenFile
 		}
 	}
-	targetFile, ErrorreateFile = os.Create(toPath)
-	if ErrorreateFile != nil {
-		if os.IsNotExist(ErrorreateFile) {
-			return ErrorreateFile
+
+	if offset > fileInfo.Size() {
+		return ErrOffsetExceedsFileSize
+	}
+	if fileInfo.Size() == 0 {
+		return ErrUnknownOriginalFileSize
+	}
+
+	targetFile, ErrorCreateFile = os.Create(toPath)
+	if ErrorCreateFile != nil {
+		if os.IsNotExist(ErrorCreateFile) {
+			return ErrorCreateFile
 		}
 	}
 	defer originalFile.Close()
 	defer targetFile.Close()
 
-	// Create tmp filename from original fileinfo
-
-	//fileInfo := os.FileInfo()
-	//
-	//// TODO finish this
-	//if offset > os.FileInfo().Size() {
-	//	return ErrOffsetExceedsFileSize
-	//}
 
 	if limit > 0 {
 		_, err := io.CopyN(targetFile, originalFile, limit)
