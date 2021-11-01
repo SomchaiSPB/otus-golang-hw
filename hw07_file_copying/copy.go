@@ -15,6 +15,7 @@ var (
 	ErrUnknownOriginalFileSize = errors.New("original file size unknown")
 	ErrorOpenFile   = errors.New("file open failed")
 	ErrorCreateFile = errors.New("file create failed")
+	ErrorWriteFile = errors.New("file write failed")
 	originalFile    *os.File
 	targetFile *os.File
 )
@@ -70,12 +71,14 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	defer targetFile.Close()
 
 
-	if limit > 0 {
-		_, err := io.CopyN(targetFile, originalFile, limit)
-		if err != nil {
-			log.Panicf("failed to read original file: %v", err)
-		}
-	}
+	//if limit > 0 {
+	//	_, err := io.CopyN(targetFile, originalFile, limit)
+	//	if err != nil {
+	//		log.Panicf("failed to read original file: %v", err)
+	//	}
+	//
+	//	return nil
+	//}
 
 
 	if offset == 0 && limit == 0 {
@@ -85,12 +88,14 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 
 		if err != nil {
 			log.Panicf("failed to read original file: %v", err)
+			return ErrorOpenFile
 		}
 
 		//written, err := targetFile.Write(originalFile)
 		err = ioutil.WriteFile(toPath, originalFile, 0644)
 		if err!= nil {
 			log.Panicf("failed to write: %v", err)
+			return ErrorWriteFile
 		}
 
 	} else {
