@@ -3,11 +3,12 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/cheggaaa/pb/v3"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/cheggaaa/pb/v3"
 )
 
 var (
@@ -16,31 +17,11 @@ var (
 	ErrUnknownOriginalFileSize = errors.New("original file size unknown")
 	ErrorOpenFile              = errors.New("file open failed")
 	ErrorCreateFile            = errors.New("file create failed")
-	ErrorNegativeOffset             = errors.New("offset can not be negative")
+	ErrorNegativeOffset        = errors.New("offset can not be negative")
 	originalFile               *os.File
 	targetFile                 *os.File
+	bufLen                     int64
 )
-
-//type fileChecker interface {
-//	checkFile()
-//}
-//
-//type originalFile struct {
-//	originalFile    *os.File
-//}
-//
-//func (f originalFile) check()  {
-//	fileInfo, _ := f.Stat()
-//	if ErrorOpenFile != nil {
-//		if os.IsNotExist(ErrorOpenFile) {
-//			return ErrorOpenFile
-//		}
-//	}
-//}
-//
-//type targetFile struct {
-//	targetFile *os.File
-//}
 
 func Copy(fromPath, toPath string, offset, limit int64) error {
 	if filepath.Ext(fromPath) == "" || filepath.Ext(fromPath) != filepath.Ext(toPath) {
@@ -83,7 +64,8 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 
 	bar := pb.Full.Start64(limit)
 
-	if limit == 0 {
+	switch limit {
+	case 0:
 		read, err := io.ReadAll(originalFile)
 		copied := read[offset:]
 
@@ -96,10 +78,9 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		if err != nil {
 			log.Panicf("failed to write: %v", err)
 		}
-
-	} else {
-		bufLen := fileInfo.Size()
-		if offset + limit > fileInfo.Size() {
+	default:
+		bufLen = fileInfo.Size()
+		if offset+limit > fileInfo.Size() {
 			bufLen = fileInfo.Size() - offset
 		} else {
 			bufLen = limit
@@ -109,13 +90,11 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		originalFile.ReadAt(buf, offset)
 
 		_, err := targetFile.Write(buf)
-
 		if err != nil {
 			log.Panicf("failed to write: %v", err)
 		}
 		bar.Finish()
 	}
-
 
 	return nil
 }
