@@ -2,22 +2,23 @@ package main
 
 import (
 	"errors"
+	"fmt"
+	"github.com/cheggaaa/pb/v3"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 )
 
 var (
-	ErrUnsupportedFile       = errors.New("unsupported originalFile")
-	ErrOffsetExceedsFileSize = errors.New("offset exceeds originalFile size")
+	ErrUnsupportedFile         = errors.New("unsupported originalFile")
+	ErrOffsetExceedsFileSize   = errors.New("offset exceeds originalFile size")
 	ErrUnknownOriginalFileSize = errors.New("original file size unknown")
-	ErrorOpenFile   = errors.New("file open failed")
-	ErrorCreateFile = errors.New("file create failed")
-	ErrorWriteFile = errors.New("file write failed")
-	originalFile    *os.File
-	targetFile *os.File
+	ErrorOpenFile              = errors.New("file open failed")
+	ErrorCreateFile            = errors.New("file create failed")
+	ErrorNegativeOffset             = errors.New("offset can not be negative")
+	originalFile               *os.File
+	targetFile                 *os.File
 )
 
 //type fileChecker interface {
@@ -42,12 +43,21 @@ var (
 //}
 
 func Copy(fromPath, toPath string, offset, limit int64) error {
-	if filepath.Ext(fromPath) == "" {
+	if filepath.Ext(fromPath) == "" || filepath.Ext(fromPath) != filepath.Ext(toPath) {
 		log.Printf("unsupported originalFile %v", fromPath)
 		return ErrUnsupportedFile
 	}
+	if offset < 0 {
+		return ErrorNegativeOffset
+	}
+
 	originalFile, ErrorOpenFile = os.Open(fromPath)
 	fileInfo, _ := originalFile.Stat()
+
+	if fileInfo.Size() <= limit {
+		limit = fileInfo.Size()
+	}
+
 	if ErrorOpenFile != nil {
 		if os.IsNotExist(ErrorOpenFile) {
 			return ErrorOpenFile
@@ -62,6 +72,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	}
 
 	targetFile, ErrorCreateFile = os.Create(toPath)
+
 	if ErrorCreateFile != nil {
 		if os.IsNotExist(ErrorCreateFile) {
 			return ErrorCreateFile
@@ -70,55 +81,41 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	defer originalFile.Close()
 	defer targetFile.Close()
 
+	bar := pb.Full.Start64(limit)
 
-	//if limit > 0 {
-	//	_, err := io.CopyN(targetFile, originalFile, limit)
-	//	if err != nil {
-	//		log.Panicf("failed to read original file: %v", err)
-	//	}
-	//
-	//	return nil
-	//}
-
-
-	if offset == 0 && limit == 0 {
-
-		//read, err := io.ReadAll(originalFile)
-		originalFile, err := ioutil.ReadFile(fromPath)
+	if limit == 0 {
+		read, err := io.ReadAll(originalFile)
+		copied := read[offset:]
 
 		if err != nil {
+			fmt.Println(err)
 			log.Panicf("failed to read original file: %v", err)
-			return ErrorOpenFile
 		}
 
-		//written, err := targetFile.Write(originalFile)
-		err = ioutil.WriteFile(toPath, originalFile, 0644)
-		if err!= nil {
+		_, err = targetFile.Write(copied)
+		if err != nil {
 			log.Panicf("failed to write: %v", err)
-			return ErrorWriteFile
 		}
 
 	} else {
-		buf := make([]byte, limit)
-		for offset < limit {
-			read, err := originalFile.Read(buf[offset:])
-
-			offset += int64(read)
-
-			if err == io.EOF {
-				break
-			}
-			if err != nil {
-				log.Panicf("failed to read original file: %v", err)
-			}
+		bufLen := fileInfo.Size()
+		if offset + limit > fileInfo.Size() {
+			bufLen = fileInfo.Size() - offset
+		} else {
+			bufLen = limit
 		}
+		buf := make([]byte, bufLen)
+
+		originalFile.ReadAt(buf, offset)
 
 		_, err := targetFile.Write(buf)
-		if err!= nil {
+
+		if err != nil {
 			log.Panicf("failed to write: %v", err)
 		}
-
+		bar.Finish()
 	}
+
 
 	return nil
 }
