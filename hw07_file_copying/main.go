@@ -19,5 +19,5 @@ func init() {
 func main() {
 	flag.Parse()
 
-	Copy(from, to, offset, limit)
+	_ = Copy(from, to, offset, limit)
 }
