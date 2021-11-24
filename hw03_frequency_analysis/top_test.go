@@ -80,3 +80,21 @@ func TestTop10(t *testing.T) {
 		}
 	})
 }
+
+func TestTopAdditional(t *testing.T) {
+	wordsMap := []struct {
+		input    string
+		expected []string
+	}{
+		{input: "a b c c d . a, 123 oops11! here we are", expected: []string{
+			"c", ".", "123", "a", "a,", "are", "b", "d", "here", "oops11!",
+		}},
+		{input: "ы ы я ты вы в ы, тест123, 000 yesДа ! в", expected: []string{
+			"в", "ы", "!", "000", "yesДа", "вы", "тест123,", "ты", "ы,", "я",
+		}},
+	}
+
+	for _, s := range wordsMap {
+		require.Equal(t, s.expected, Top10(s.input))
+	}
+}
