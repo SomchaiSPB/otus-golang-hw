@@ -17,11 +17,12 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 		_ = os.Setenv(key, value.Value)
 	}
 
-	//ch := make(chan os.Signal, 1)
-	//signal.Notify(ch, syscall.SIGINT, syscall.SIGKILL)
-	//signal.Ignore(syscall.SIGTERM)
+	cmd1 := cmd[0]
+	cmd2 := cmd[1]
+	arg1 := cmd[2]
+	arg2 := cmd[3]
 
-	c := exec.Command(cmd[0], cmd[1], cmd[2], cmd[3])
+	c := exec.Command(cmd1, cmd2, arg1, arg2)
 
 	c.Stdout = os.Stdout
 
