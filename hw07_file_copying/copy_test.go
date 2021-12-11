@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/stretchr/testify/require"
 	"io"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestCopy(t *testing.T) {
@@ -21,13 +22,13 @@ func TestCopy(t *testing.T) {
 		expected, err := os.Open("testdata/input.txt")
 		require.NoError(t, err)
 
+		actualByte, _ := io.ReadAll(actual)
+		expectedByte, _ := io.ReadAll(expected)
+
 		go func() {
 			defer actual.Close()
 			defer expected.Close()
 		}()
-
-		actualByte, _ := io.ReadAll(actual)
-		expectedByte, _ := io.ReadAll(expected)
 
 		require.Equal(t, expectedByte, actualByte)
 	})
