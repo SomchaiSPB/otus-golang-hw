@@ -30,8 +30,6 @@ func TestCopy(t *testing.T) {
 		expectedByte, _ := io.ReadAll(expected)
 
 		require.Equal(t, expectedByte, actualByte)
-
-		_ = os.Remove("testdata/output.txt")
 	})
 
 	t.Run("copy limit 100", func(t *testing.T) {
@@ -51,8 +49,6 @@ func TestCopy(t *testing.T) {
 		actualByte, _ := io.ReadAll(actual)
 
 		require.Equal(t, 100, len(actualByte))
-
-		_ = os.Remove("testdata/output.txt")
 	})
 
 	t.Run("copy negative offset", func(t *testing.T) {
@@ -98,4 +94,6 @@ func TestCopy(t *testing.T) {
 
 		require.Equal(t, 100, len(actualByte))
 	})
+
+	_ = os.Remove("testdata/output.txt")
 }
