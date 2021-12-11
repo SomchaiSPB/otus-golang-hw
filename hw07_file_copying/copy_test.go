@@ -43,11 +43,11 @@ func TestCopy(t *testing.T) {
 		actual, err := os.Open("testdata/output.txt")
 		require.NoError(t, err)
 
+		actualByte, _ := io.ReadAll(actual)
+
 		go func() {
 			defer actual.Close()
 		}()
-
-		actualByte, _ := io.ReadAll(actual)
 
 		require.Equal(t, 100, len(actualByte))
 	})
@@ -68,11 +68,11 @@ func TestCopy(t *testing.T) {
 		actual, err := os.Open("testdata/output.txt")
 		require.NoError(t, err)
 
+		actualByte, _ := io.ReadAll(actual)
+
 		go func() {
 			defer actual.Close()
 		}()
-
-		actualByte, _ := io.ReadAll(actual)
 
 		require.Equal(t, 6617, len(actualByte))
 	})
@@ -87,11 +87,11 @@ func TestCopy(t *testing.T) {
 		actual, err := os.Open("testdata/output.txt")
 		require.NoError(t, err)
 
+		actualByte, _ := io.ReadAll(actual)
+
 		go func() {
 			defer actual.Close()
 		}()
-
-		actualByte, _ := io.ReadAll(actual)
 
 		require.Equal(t, 100, len(actualByte))
 	})
