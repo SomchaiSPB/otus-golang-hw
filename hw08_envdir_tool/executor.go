@@ -8,8 +8,6 @@ import (
 
 // RunCmd runs a command + arguments (cmd) with environment variables from env.
 func RunCmd(cmd []string, env Environment) (returnCode int) {
-	var code int
-
 	for key, value := range env {
 		if value.NeedRemove {
 			_ = os.Unsetenv(key)
@@ -30,5 +28,5 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 		log.Fatal(err)
 	}
 
-	return code
+	return c.ProcessState.ExitCode()
 }
