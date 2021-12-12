@@ -44,20 +44,54 @@ func TestValidate(t *testing.T) {
 	}{
 		{
 			// Place your code here.
-			in:          *NewUser(),
+			in: User{
+				ID:     "a5ca6f3f-2c56-4d83-a484-d732b23e43fb",
+				Name:   "Bob",
+				Age:    1,
+				Email:  "mail@mail.com",
+				Role:   "admin",
+				Phones: []string{"12345678901", "12345678901"},
+				meta:   nil,
+			},
 			expectedErr: MinimumValueViolationErr,
 		},
 		{
+			// Place your code here.
+			in: User{
+				ID:     "a5ca6f3f-2c56-4d83-a484-d732b23e43fb",
+				Name:   "Bob",
+				Age:    25,
+				Email:  "1112s",
+				Role:   "admin",
+				Phones: []string{"12345678901", "12345678901"},
+				meta:   nil,
+			},
+			expectedErr: RegexpViolationErr,
+		},
+		{
 			in: App{
-				Version: "1234",
+				Version: "123",
 			},
 			expectedErr: LenViolationErr,
 		},
 		{
 			in: Response{
-				Code: 401,
+				Code: 205,
 			},
 			expectedErr: NotInRangeViolationErr,
+		},
+		{
+			// Place your code here.
+			in: User{
+				ID:     "a5ca6f3f-2c56-4d83-a484-d732b23e43fb",
+				Name:   "Bob",
+				Age:    100,
+				Email:  "mail@mail.com",
+				Role:   "admin",
+				Phones: []string{"12345678901", "12345678901"},
+				meta:   nil,
+			},
+			expectedErr: MaxValueViolationErr,
 		},
 	}
 
@@ -68,9 +102,7 @@ func TestValidate(t *testing.T) {
 
 			err := Validate(tt.in)
 
-			if validationErr, ok := err.(ValidationError); ok {
-				require.EqualError(t, tt.expectedErr, validationErr.Error())
-			}
+			require.EqualError(t, tt.expectedErr, err.Error())
 
 			_ = tt
 		})

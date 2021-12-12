@@ -28,9 +28,9 @@ func (v ValidationError) Error() string {
 	var strB strings.Builder
 
 	strB.Write([]byte(v.Err.Error()))
-	strB.WriteString(" for field ")
-	strB.Write([]byte(v.Field))
-	strB.WriteByte('\n')
+	//strB.WriteString(" for field ")
+	//strB.Write([]byte(v.Field))
+	//strB.WriteByte('\n')
 
 	return strB.String()
 
@@ -225,20 +225,32 @@ func validateIn(must string, have interface{}) error {
 			}
 		}
 	case []int:
+		found := false
 		for _, n := range numRange {
 			for _, val := range x {
 				m, _ := strconv.Atoi(n)
-				if m != val {
-					return NotInRangeViolationErr
+				if m == val {
+					found = true
+					break
 				}
 			}
 		}
+		if !found {
+			return NotInRangeViolationErr
+		}
+
 	case int:
+		found := false
 		for _, n := range numRange {
 			m, _ := strconv.Atoi(n)
-			if m != x {
-				return NotInRangeViolationErr
+			if m == x {
+				found = true
+				break
 			}
+		}
+
+		if !found {
+			return NotInRangeViolationErr
 		}
 	}
 
