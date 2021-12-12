@@ -1,8 +1,8 @@
 package hw10programoptimization
 
 import (
-	"encoding/json"
 	"fmt"
+	"github.com/mailru/easyjson"
 	"io"
 	"io/ioutil"
 	"regexp"
@@ -40,7 +40,7 @@ func getUsers(r io.Reader) (result users, err error) {
 	lines := strings.Split(string(content), "\n")
 	for i, line := range lines {
 		var user User
-		if err = json.Unmarshal([]byte(line), &user); err != nil {
+		if err = easyjson.Unmarshal([]byte(line), &user); err != nil {
 			return
 		}
 		result[i] = user
@@ -49,7 +49,7 @@ func getUsers(r io.Reader) (result users, err error) {
 }
 
 func countDomains(u users, domain string) (DomainStat, error) {
-	result := make(DomainStat)
+	result := make(DomainStat, len(u))
 
 	for _, user := range u {
 		matched, err := regexp.Match("\\."+domain, []byte(user.Email))
