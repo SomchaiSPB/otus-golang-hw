@@ -37,24 +37,48 @@ type (
 )
 
 func TestValidate(t *testing.T) {
-	tests := []struct {
-		in          interface{}
-		expectedErr error
-	}{
-		{
-			// Place your code here.
-		},
-		// ...
-		// Place your code here.
-	}
+	user := NewUser()
 
-	for i, tt := range tests {
-		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
-			tt := tt
-			t.Parallel()
+	err := Validate(*user)
 
-			// Place your code here.
-			_ = tt
-		})
+	fmt.Println(err)
+
+	//require.NoError(t, err)
+
+	//tests := []struct {
+	//	in          interface{}
+	//	expectedErr error
+	//}{
+	//	{
+	//		// Place your code here.
+	//		in: NewUser(),
+	//	},
+	//	// ...
+	//	// Place your code here.
+	//}
+	//
+	//for i, tt := range tests {
+	//	t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
+	//		tt := tt
+	//		t.Parallel()
+	//
+	//		// Place your code here.
+	//		err := Validate(NewUser())
+	//
+	//		fmt.Println(err)
+	//		_ = tt
+	//	})
+	//}
+}
+
+func NewUser() *User {
+	return &User{
+		ID:     "a5ca6f3f-2c56-4d83-a484-d732b23e43fb",
+		Name:   "Bob",
+		Age:    16,
+		Email:  "mail@mail.com",
+		Role:   "admin",
+		Phones: []string{"89086663", "098768992"},
+		meta:   nil,
 	}
 }
