@@ -3,8 +3,9 @@ package hw09structvalidator
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 type UserRole string
@@ -53,7 +54,7 @@ func TestValidate(t *testing.T) {
 				Phones: []string{"12345678901", "12345678901"},
 				meta:   nil,
 			},
-			expectedErr: MinimumValueViolationErr,
+			expectedErr: ErrMinimumValueViolation,
 		},
 		{
 			// Place your code here.
@@ -66,19 +67,19 @@ func TestValidate(t *testing.T) {
 				Phones: []string{"12345678901", "12345678901"},
 				meta:   nil,
 			},
-			expectedErr: RegexpViolationErr,
+			expectedErr: ErrRegexpViolation,
 		},
 		{
 			in: App{
 				Version: "123",
 			},
-			expectedErr: LenViolationErr,
+			expectedErr: ErrLenViolation,
 		},
 		{
 			in: Response{
 				Code: 205,
 			},
-			expectedErr: NotInRangeViolationErr,
+			expectedErr: ErrNotInRangeViolation,
 		},
 		{
 			// Place your code here.
@@ -91,7 +92,7 @@ func TestValidate(t *testing.T) {
 				Phones: []string{"12345678901", "12345678901"},
 				meta:   nil,
 			},
-			expectedErr: MaxValueViolationErr,
+			expectedErr: ErrMaxValueViolation,
 		},
 	}
 

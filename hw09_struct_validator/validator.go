@@ -10,12 +10,12 @@ import (
 )
 
 var (
-	ExpectedStructErr        = errors.New("expected struct, given")
-	MinimumValueViolationErr = errors.New("minimum constraint violation")
-	MaxValueViolationErr     = errors.New("maximum constraint violation")
-	RegexpViolationErr       = errors.New("regexp does not match")
-	LenViolationErr          = errors.New("length violation")
-	NotInRangeViolationErr   = errors.New("value is not in range")
+	ErrExpectedStruct        = errors.New("expected struct, given")
+	ErrMinimumValueViolation = errors.New("minimum constraint violation")
+	ErrMaxValueViolation     = errors.New("maximum constraint violation")
+	ErrRegexpViolation       = errors.New("regexp does not match")
+	ErrLenViolation          = errors.New("length violation")
+	ErrNotInRangeViolation   = errors.New("value is not in range")
 	validationErrors         ValidationErrors
 )
 
@@ -28,12 +28,8 @@ func (v ValidationError) Error() string {
 	var strB strings.Builder
 
 	strB.Write([]byte(v.Err.Error()))
-	//strB.WriteString(" for field ")
-	//strB.Write([]byte(v.Field))
-	//strB.WriteByte('\n')
 
 	return strB.String()
-
 }
 
 type ValidationErrors []ValidationError
@@ -52,7 +48,7 @@ func Validate(v interface{}) error {
 	iv := reflect.ValueOf(v)
 
 	if iv.Kind() != reflect.Struct {
-		return ExpectedStructErr
+		return ErrExpectedStruct
 	}
 
 	t := iv.Type()
@@ -89,9 +85,9 @@ func Validate(v interface{}) error {
 
 	if len(validationErrors) > 0 {
 		return validationErrors
-	} else {
-		return nil
 	}
+
+	return nil
 }
 
 func handleValidations(m map[string]map[string]interface{}) {
@@ -141,12 +137,12 @@ func validateMin(must int, have interface{}) error {
 	case []int:
 		for _, val := range x {
 			if must > val {
-				return MinimumValueViolationErr
+				return ErrMinimumValueViolation
 			}
 		}
 	case int:
 		if must > x {
-			return MinimumValueViolationErr
+			return ErrMinimumValueViolation
 		}
 	}
 
@@ -158,12 +154,12 @@ func validateMax(must int, have interface{}) error {
 	case []int:
 		for _, val := range x {
 			if must < val {
-				return MaxValueViolationErr
+				return ErrMaxValueViolation
 			}
 		}
 	case int:
 		if must < x {
-			return MaxValueViolationErr
+			return ErrMaxValueViolation
 		}
 	}
 
@@ -176,13 +172,13 @@ func validateRegexp(reg string, have interface{}) error {
 		for _, val := range x {
 			match, _ := regexp.Match(reg, []byte(val))
 			if !match {
-				return RegexpViolationErr
+				return ErrRegexpViolation
 			}
 		}
 	case string:
 		match, _ := regexp.Match(reg, []byte(x))
 		if !match {
-			return RegexpViolationErr
+			return ErrRegexpViolation
 		}
 	}
 
@@ -194,12 +190,12 @@ func validateLen(must int, have interface{}) error {
 	case []string:
 		for _, val := range x {
 			if must != len(val) {
-				return LenViolationErr
+				return ErrLenViolation
 			}
 		}
 	case string:
 		if must != len(x) {
-			return LenViolationErr
+			return ErrLenViolation
 		}
 	}
 
@@ -214,14 +210,14 @@ func validateIn(must string, have interface{}) error {
 		for _, n := range numRange {
 			for _, val := range x {
 				if n != val {
-					return NotInRangeViolationErr
+					return ErrNotInRangeViolation
 				}
 			}
 		}
 	case string:
 		for _, n := range numRange {
 			if n != x {
-				return NotInRangeViolationErr
+				return ErrNotInRangeViolation
 			}
 		}
 	case []int:
@@ -236,7 +232,7 @@ func validateIn(must string, have interface{}) error {
 			}
 		}
 		if !found {
-			return NotInRangeViolationErr
+			return ErrNotInRangeViolation
 		}
 
 	case int:
@@ -250,7 +246,7 @@ func validateIn(must string, have interface{}) error {
 		}
 
 		if !found {
-			return NotInRangeViolationErr
+			return ErrNotInRangeViolation
 		}
 	}
 
