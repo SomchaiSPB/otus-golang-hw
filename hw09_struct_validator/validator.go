@@ -24,18 +24,25 @@ type ValidationError struct {
 	Err   error
 }
 
+func (v ValidationError) Error() string {
+	var strB strings.Builder
+
+	strB.Write([]byte(v.Err.Error()))
+	strB.WriteString(" for field ")
+	strB.Write([]byte(v.Field))
+	strB.WriteByte('\n')
+
+	return strB.String()
+
+}
+
 type ValidationErrors []ValidationError
 
 func (v ValidationErrors) Error() string {
 	var strB strings.Builder
 
 	for _, validationError := range v {
-		strB.WriteString("validation error for field: ")
-		strB.Write([]byte(validationError.Err.Error()))
-		strB.Write([]byte(validationError.Field))
-		strB.WriteByte('\n')
-		strB.WriteString("error: ")
-		strB.WriteByte('\n')
+		strB.WriteString(validationError.Error())
 	}
 
 	return strB.String()
@@ -200,16 +207,38 @@ func validateLen(must int, have interface{}) error {
 }
 
 func validateIn(must string, have interface{}) error {
+	numRange := strings.Split(must, ",")
+
 	switch x := have.(type) {
 	case []string:
-		for _, val := range x {
-			if must != val {
-				return NotInRangeViolationErr
+		for _, n := range numRange {
+			for _, val := range x {
+				if n != val {
+					return NotInRangeViolationErr
+				}
 			}
 		}
 	case string:
-		if must != x {
-			return NotInRangeViolationErr
+		for _, n := range numRange {
+			if n != x {
+				return NotInRangeViolationErr
+			}
+		}
+	case []int:
+		for _, n := range numRange {
+			for _, val := range x {
+				m, _ := strconv.Atoi(n)
+				if m != val {
+					return NotInRangeViolationErr
+				}
+			}
+		}
+	case int:
+		for _, n := range numRange {
+			m, _ := strconv.Atoi(n)
+			if m != x {
+				return NotInRangeViolationErr
+			}
 		}
 	}
 

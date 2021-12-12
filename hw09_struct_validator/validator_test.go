@@ -3,6 +3,7 @@ package hw09structvalidator
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -37,38 +38,43 @@ type (
 )
 
 func TestValidate(t *testing.T) {
-	user := NewUser()
+	tests := []struct {
+		in          interface{}
+		expectedErr error
+	}{
+		{
+			// Place your code here.
+			in:          *NewUser(),
+			expectedErr: MinimumValueViolationErr,
+		},
+		{
+			in: App{
+				Version: "1234",
+			},
+			expectedErr: LenViolationErr,
+		},
+		{
+			in: Response{
+				Code: 401,
+			},
+			expectedErr: NotInRangeViolationErr,
+		},
+	}
 
-	err := Validate(*user)
+	for i, tt := range tests {
+		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
+			tt := tt
+			t.Parallel()
 
-	fmt.Println(err)
+			err := Validate(tt.in)
 
-	//require.NoError(t, err)
+			if validationErr, ok := err.(ValidationError); ok {
+				require.EqualError(t, tt.expectedErr, validationErr.Error())
+			}
 
-	//tests := []struct {
-	//	in          interface{}
-	//	expectedErr error
-	//}{
-	//	{
-	//		// Place your code here.
-	//		in: NewUser(),
-	//	},
-	//	// ...
-	//	// Place your code here.
-	//}
-	//
-	//for i, tt := range tests {
-	//	t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
-	//		tt := tt
-	//		t.Parallel()
-	//
-	//		// Place your code here.
-	//		err := Validate(NewUser())
-	//
-	//		fmt.Println(err)
-	//		_ = tt
-	//	})
-	//}
+			_ = tt
+		})
+	}
 }
 
 func NewUser() *User {
@@ -78,7 +84,7 @@ func NewUser() *User {
 		Age:    16,
 		Email:  "mail@mail.com",
 		Role:   "admin",
-		Phones: []string{"89086663", "098768992"},
+		Phones: []string{"12345678901", "12345678901"},
 		meta:   nil,
 	}
 }
