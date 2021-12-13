@@ -3,9 +3,10 @@ package hw10programoptimization
 import (
 	"bufio"
 	"errors"
-	"github.com/mailru/easyjson"
 	"io"
 	"strings"
+
+	"github.com/mailru/easyjson"
 )
 
 //easyjson:json
