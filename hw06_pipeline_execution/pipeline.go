@@ -17,6 +17,7 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 		if stage == nil {
 			continue
 		}
+
 		wrapped := wrap(in, done)
 		in = stage(wrapped)
 	}
