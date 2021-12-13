@@ -1,8 +1,8 @@
 benchmark            old ns/op     new ns/op     delta
-BenchmarkTest-12     2465429       2464          -99.90%
+BenchmarkTest-12     2465429       2234          -99.91%
 
 benchmark            old allocs     new allocs     delta
-BenchmarkTest-12     361            8              -97.78%
+BenchmarkTest-12     361            6              -98.34%
 
 benchmark            old bytes     new bytes     delta
-BenchmarkTest-12     28599         4544          -84.11%
+BenchmarkTest-12     28599         4496          -84.28%
