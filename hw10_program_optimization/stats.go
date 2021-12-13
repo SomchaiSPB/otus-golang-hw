@@ -3,9 +3,9 @@ package hw10programoptimization
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"io"
 	"strings"
+	"sync"
 
 	"github.com/mailru/easyjson"
 )
@@ -24,18 +24,27 @@ type User struct {
 type DomainStat map[string]int
 
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
-	u, err := getUsers(r)
-	if err != nil {
-		return nil, fmt.Errorf("get users error: %w", err)
-	}
-	return countDomains(&u, domain)
+	userCh := make(chan *User)
+	errCh := make(chan error)
+	wg := sync.WaitGroup{}
+
+	go func() {
+		defer close(userCh)
+		defer close(errCh)
+		wg.Wait()
+	}()
+
+	wg.Add(1)
+	go getUsers(r, userCh, errCh, &wg)
+
+	res := countDomains(userCh, domain)
+
+	return res, nil
 }
 
-type users [100_000]User
-
-func getUsers(r io.Reader) (result users, err error) {
+func getUsers(r io.Reader, ch chan *User, errCh chan error, w *sync.WaitGroup) {
+	defer w.Done()
 	reader := bufio.NewReader(r)
-	i := 0
 
 	for {
 		line, _, er := reader.ReadLine()
@@ -44,29 +53,26 @@ func getUsers(r io.Reader) (result users, err error) {
 			if errors.Is(er, io.EOF) {
 				break
 			}
-			err = er
+			errCh <- er
 			return
 		}
 		_ = easyjson.Unmarshal(line, &user)
 
-		result[i] = user
-		i++
+		ch <- &user
 	}
-
-	return
 }
 
-func countDomains(u *users, domain string) (DomainStat, error) {
+func countDomains(u chan *User, domain string) DomainStat {
 	result := make(DomainStat, len(u))
 
-	for _, user := range u {
+	for user := range u {
 		strDomain := strings.Split(user.Email, ".")
 
 		if strDomain[len(strDomain)-1] == domain {
-			num := result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])]
-			num++
-			result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])] = num
+			key := strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])
+			result[key]++
 		}
 	}
-	return result, nil
+
+	return result
 }
