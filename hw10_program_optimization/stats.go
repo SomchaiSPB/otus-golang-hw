@@ -28,7 +28,7 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	if err != nil {
 		return nil, fmt.Errorf("get users error: %w", err)
 	}
-	return countDomains(u, domain)
+	return countDomains(&u, domain)
 }
 
 type users [100_000]User
@@ -56,7 +56,7 @@ func getUsers(r io.Reader) (result users, err error) {
 	return
 }
 
-func countDomains(u users, domain string) (DomainStat, error) {
+func countDomains(u *users, domain string) (DomainStat, error) {
 	result := make(DomainStat, len(u))
 
 	for _, user := range u {
