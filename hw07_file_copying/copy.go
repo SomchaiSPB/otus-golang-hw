@@ -35,7 +35,6 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	}
 
 	originalFile, err := os.Open(fromPath)
-
 	if err != nil {
 		if os.IsNotExist(ErrorOpenFile) {
 			return ErrorOpenFile
@@ -43,7 +42,6 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	}
 
 	fileInfo, err := originalFile.Stat()
-
 	if err != nil {
 		if os.IsNotExist(ErrorOpenFile) {
 			return ErrorOpenFile
@@ -86,7 +84,6 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 			return err
 		}
 	default:
-		bufLen = fileInfo.Size()
 		if offset+limit > fileInfo.Size() {
 			bufLen = fileInfo.Size() - offset
 		} else {
