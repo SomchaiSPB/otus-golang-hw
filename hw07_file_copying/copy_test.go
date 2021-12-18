@@ -9,15 +9,14 @@ import (
 )
 
 func TestCopy(t *testing.T) {
+	actual, err := os.CreateTemp("", "copy_test.*.txt")
+
 	t.Run("copy whole file", func(t *testing.T) {
-		err := Copy("testdata/input.txt", "testdata/output.txt", 0, 0)
-
 		require.NoError(t, err)
 
-		require.FileExistsf(t, "testdata/output.txt", "")
+		err = Copy("testdata/input.txt", actual.Name(), 0, 0)
 
-		actual, err := os.Open("testdata/output.txt")
-		require.NoError(t, err)
+		require.FileExistsf(t, actual.Name(), "")
 
 		expected, err := os.Open("testdata/input.txt")
 		require.NoError(t, err)
@@ -96,5 +95,5 @@ func TestCopy(t *testing.T) {
 		require.Equal(t, 100, len(actualByte))
 	})
 
-	_ = os.Remove("testdata/output.txt")
+	_ = os.Remove(actual.Name())
 }
