@@ -8,7 +8,9 @@ import (
 
 func TestReadDir(t *testing.T) {
 	t.Run("test env length", func(t *testing.T) {
-		env, _ := ReadDir("testdata/env")
+		env, err := ReadDir("testdata/env")
+
+		require.NoError(t, err)
 
 		require.Equal(t, 5, len(env))
 	})

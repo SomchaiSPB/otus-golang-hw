@@ -10,9 +10,15 @@ import (
 func RunCmd(cmd []string, env Environment) (returnCode int) {
 	for key, value := range env {
 		if value.NeedRemove {
-			_ = os.Unsetenv(key)
+			err := os.Unsetenv(key)
+			if err != nil {
+				log.Println(err)
+			}
 		}
-		_ = os.Setenv(key, value.Value)
+		err := os.Setenv(key, value.Value)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 
 	cmd1 := cmd[0]

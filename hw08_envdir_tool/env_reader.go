@@ -3,9 +3,9 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
@@ -21,7 +21,8 @@ type EnvValue struct {
 // ReadDir reads a specified directory and returns map of env variables.
 // Variables represented as files where filename is name of variable, file first line is a value.
 func ReadDir(dir string) (Environment, error) {
-	files, err := ioutil.ReadDir(dir)
+	var file *os.File
+	files, err := os.ReadDir(dir)
 	environment := make(Environment, len(files))
 
 	if err != nil {
@@ -29,11 +30,11 @@ func ReadDir(dir string) (Environment, error) {
 		return nil, err
 	}
 
-	for _, file := range files {
+	for _, f := range files {
 		envVal := new(EnvValue)
-		file, err := os.Open(dir + "/" + file.Name())
+		file, err = os.Open(path.Join(dir, f.Name()))
+		log.Print(err)
 		if err != nil {
-			log.Print(err)
 			return nil, err
 		}
 
@@ -46,7 +47,7 @@ func ReadDir(dir string) (Environment, error) {
 		if fi.Size() == 0 {
 			envVal.Value = ""
 			envVal.NeedRemove = true
-			environment[filepath.Base(file.Name())] = *envVal
+			environment[filepath.Base(f.Name())] = *envVal
 			break
 		}
 
@@ -63,8 +64,9 @@ func ReadDir(dir string) (Environment, error) {
 
 		envVal.Value = string(cleanStr)
 
-		environment[filepath.Base(file.Name())] = *envVal
+		environment[filepath.Base(f.Name())] = *envVal
 	}
+	defer file.Close()
 
 	return environment, nil
 }
