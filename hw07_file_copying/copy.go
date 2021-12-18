@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -18,12 +17,15 @@ var (
 	ErrorOpenFile              = errors.New("file open failed")
 	ErrorCreateFile            = errors.New("file create failed")
 	ErrorNegativeOffset        = errors.New("offset can not be negative")
-	originalFile               *os.File
-	targetFile                 *os.File
-	bufLen                     int64
 )
 
 func Copy(fromPath, toPath string, offset, limit int64) error {
+	var (
+		originalFile *os.File
+		targetFile   *os.File
+		bufLen       int64
+	)
+
 	if filepath.Ext(fromPath) == "" || filepath.Ext(fromPath) != filepath.Ext(toPath) {
 		log.Printf("unsupported originalFile %v", fromPath)
 		return ErrUnsupportedFile
@@ -32,17 +34,25 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		return ErrorNegativeOffset
 	}
 
-	originalFile, ErrorOpenFile = os.Open(fromPath)
-	fileInfo, _ := originalFile.Stat()
+	originalFile, err := os.Open(fromPath)
 
-	if fileInfo.Size() <= limit {
-		limit = fileInfo.Size()
-	}
-
-	if ErrorOpenFile != nil {
+	if err != nil {
 		if os.IsNotExist(ErrorOpenFile) {
 			return ErrorOpenFile
 		}
+	}
+
+	fileInfo, err := originalFile.Stat()
+
+	if err != nil {
+		if os.IsNotExist(ErrorOpenFile) {
+			return ErrorOpenFile
+		}
+	}
+	defer originalFile.Close()
+
+	if fileInfo.Size() <= limit {
+		limit = fileInfo.Size()
 	}
 
 	if offset > fileInfo.Size() {
@@ -59,24 +69,21 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 			return ErrorCreateFile
 		}
 	}
-	defer originalFile.Close()
+
 	defer targetFile.Close()
 
 	bar := pb.Full.Start64(limit)
 
+	var buf []byte
+
 	switch limit {
 	case 0:
 		read, err := io.ReadAll(originalFile)
-		copied := read[offset:]
+		buf = read[offset:]
 
 		if err != nil {
-			fmt.Println(err)
-			log.Panicf("failed to read original file: %v", err)
-		}
-
-		_, err = targetFile.Write(copied)
-		if err != nil {
-			log.Panicf("failed to write: %v", err)
+			log.Printf("failed to read original file: %v", err)
+			return err
 		}
 	default:
 		bufLen = fileInfo.Size()
@@ -85,15 +92,17 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		} else {
 			bufLen = limit
 		}
-		buf := make([]byte, bufLen)
+		buf = make([]byte, bufLen)
 
 		originalFile.ReadAt(buf, offset)
 
-		_, err := targetFile.Write(buf)
-		if err != nil {
-			log.Panicf("failed to write: %v", err)
-		}
 		bar.Finish()
+	}
+
+	_, err = targetFile.Write(buf)
+	if err != nil {
+		log.Printf("failed to write: %v", err)
+		return err
 	}
 
 	return nil
