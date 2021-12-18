@@ -14,6 +14,7 @@ func Unpack(s string) (string, error) {
 	if len(s) == 0 {
 		return "", nil
 	}
+
 	firstRune, _ := utf8.DecodeRuneInString(s)
 	if unicode.IsNumber(firstRune) {
 		return "", ErrInvalidString
@@ -42,6 +43,7 @@ func Unpack(s string) (string, error) {
 			}
 
 			cur, _ := strconv.ParseInt(string(cur), 10, 32)
+
 			result.WriteString(strings.Repeat(string(runeArr[i-1]), int(cur)-1))
 		} else {
 			result.WriteRune(cur)
