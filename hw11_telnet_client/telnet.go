@@ -25,7 +25,6 @@ type Client struct {
 
 func (c *Client) Close() (err error) {
 	err = c.connection.Close()
-	_, _ = fmt.Fprintln(os.Stderr, "...EOF")
 	return err
 }
 
@@ -35,7 +34,6 @@ func (c *Client) Receive() error {
 }
 
 func (c *Client) Send() error {
-	defer c.in.Close()
 	_, err := io.Copy(c.connection, c.in)
 	return err
 }

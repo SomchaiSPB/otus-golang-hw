@@ -2,15 +2,16 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/spf13/pflag"
 	"log"
+	"net"
 	"os"
-	"sync"
+	"os/signal"
 	"time"
 )
 
 var (
-	wg      = sync.WaitGroup{}
 	host    string
 	port    string
 	timeout time.Duration
@@ -23,41 +24,39 @@ func main() {
 	if host == "" || port == "" {
 		log.Fatal("host and port are mandatory")
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	client := NewTelnetClient(host+":"+port, timeout, os.Stdin, os.Stdout)
+	client := NewTelnetClient(net.JoinHostPort(host, port), timeout, os.Stdin, os.Stdout)
 
 	err := client.Connect()
 
 	if err != nil {
 		log.Println(err)
+		return
 	}
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		err := client.Send()
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer cancel()
 
-		if err != nil {
-			log.Println(err)
-		}
-		cancel()
-	}()
+	defer client.Close()
 
-	wg.Add(1)
 	go func() {
-		defer wg.Done()
 		err := client.Receive()
-
-		if err != nil {
+		if err == nil {
+			fmt.Fprintln(os.Stderr, "...Connection was closed by peer")
+		} else {
 			log.Println(err)
 		}
 		cancel()
 	}()
 
-	wg.Wait()
-
-	client.Close()
+	go func() {
+		err := client.Send()
+		if err == nil {
+			fmt.Fprintln(os.Stderr, "...EOF")
+		} else {
+			log.Println(err)
+		}
+		cancel()
+	}()
 
 	<-ctx.Done()
 }
