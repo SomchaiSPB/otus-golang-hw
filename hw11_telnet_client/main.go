@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/spf13/pflag"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/spf13/pflag"
 )
 
 var (
@@ -26,9 +27,7 @@ func main() {
 	}
 	client := NewTelnetClient(net.JoinHostPort(host, port), timeout, os.Stdin, os.Stdout)
 
-	err := client.Connect()
-
-	if err != nil {
+	if err := client.Connect(); err != nil {
 		log.Println(err)
 		return
 	}
