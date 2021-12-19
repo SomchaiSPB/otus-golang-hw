@@ -32,10 +32,10 @@ func main() {
 		return
 	}
 
+	defer client.Close()
+
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
-
-	defer client.Close()
 
 	go func() {
 		err := client.Receive()

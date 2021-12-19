@@ -40,7 +40,7 @@ func (c *Client) Send() error {
 
 func (c *Client) Connect() (err error) {
 	c.connection, err = net.DialTimeout("tcp", c.address, c.timeout)
-	_, _ = fmt.Fprintf(os.Stdout, "...Connected to %s\n", c.address)
+	fmt.Fprintf(os.Stderr, "...Connected to %s\n", c.address)
 	return err
 }
 
