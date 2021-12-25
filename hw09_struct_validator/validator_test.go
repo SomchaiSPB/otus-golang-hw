@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 type UserRole string
@@ -43,9 +45,55 @@ func TestValidate(t *testing.T) {
 	}{
 		{
 			// Place your code here.
+			in: User{
+				ID:     "a5ca6f3f-2c56-4d83-a484-d732b23e43fb",
+				Name:   "Bob",
+				Age:    1,
+				Email:  "mail@mail.com",
+				Role:   "admin",
+				Phones: []string{"12345678901", "12345678901"},
+				meta:   nil,
+			},
+			expectedErr: ErrMinimumValueViolation,
 		},
-		// ...
-		// Place your code here.
+		{
+			// Place your code here.
+			in: User{
+				ID:     "a5ca6f3f-2c56-4d83-a484-d732b23e43fb",
+				Name:   "Bob",
+				Age:    25,
+				Email:  "1112s",
+				Role:   "admin",
+				Phones: []string{"12345678901", "12345678901"},
+				meta:   nil,
+			},
+			expectedErr: ErrRegexpViolation,
+		},
+		{
+			in: App{
+				Version: "123",
+			},
+			expectedErr: ErrLenViolation,
+		},
+		{
+			in: Response{
+				Code: 205,
+			},
+			expectedErr: ErrNotInRangeViolation,
+		},
+		{
+			// Place your code here.
+			in: User{
+				ID:     "a5ca6f3f-2c56-4d83-a484-d732b23e43fb",
+				Name:   "Bob",
+				Age:    100,
+				Email:  "mail@mail.com",
+				Role:   "admin",
+				Phones: []string{"12345678901", "12345678901"},
+				meta:   nil,
+			},
+			expectedErr: ErrMaxValueViolation,
+		},
 	}
 
 	for i, tt := range tests {
@@ -53,8 +101,23 @@ func TestValidate(t *testing.T) {
 			tt := tt
 			t.Parallel()
 
-			// Place your code here.
+			err := Validate(tt.in)
+
+			require.EqualError(t, tt.expectedErr, err.Error())
+
 			_ = tt
 		})
+	}
+}
+
+func NewUser() *User {
+	return &User{
+		ID:     "a5ca6f3f-2c56-4d83-a484-d732b23e43fb",
+		Name:   "Bob",
+		Age:    16,
+		Email:  "mail@mail.com",
+		Role:   "admin",
+		Phones: []string{"12345678901", "12345678901"},
+		meta:   nil,
 	}
 }
