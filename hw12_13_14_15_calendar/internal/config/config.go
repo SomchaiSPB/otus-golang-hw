@@ -16,18 +16,21 @@ type LoggerConf struct {
 }
 
 type AppConfig struct {
+	Host    string
 	Port    string
 	Storage string
 }
 
-func NewConfig(configPath string) *Config {
-	var cfg Config
+func NewConfig(configPath string) (*Config, error) {
+	var cfg *Config
 
 	f, err := os.Open(configPath)
+	defer f.Close()
+
 	if err != nil {
 		fmt.Println(err)
+		return cfg, err
 	}
-	defer f.Close()
 
 	decoder := yaml.NewDecoder(f)
 	err = decoder.Decode(&cfg)
@@ -36,5 +39,5 @@ func NewConfig(configPath string) *Config {
 		fmt.Println(err)
 	}
 
-	return &cfg
+	return cfg, nil
 }

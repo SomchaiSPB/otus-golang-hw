@@ -41,7 +41,7 @@ func NewServer(logger Logger, app Application, config *config.AppConfig) *Server
 }
 
 func (s *Server) Start(ctx context.Context) error {
-	address := net.JoinHostPort("0.0.0.0", s.config.Port)
+	address := net.JoinHostPort(s.config.Host, s.config.Port)
 
 	server := &http.Server{Addr: address, Handler: s.service()}
 
@@ -118,14 +118,22 @@ func (s *Server) service() http.Handler {
 	})
 
 	r.Get("/list", func(w http.ResponseWriter, r *http.Request) {
+		var response []storage.Event
 		events := s.app.ListEvents(context.Background())
 
-		responseData, err := json.Marshal(events)
+		for _, event := range events {
+			response = append(response, *event)
+		}
+
+		responseData, err := json.Marshal(response)
 
 		if err != nil {
 			s.logger.Error(err.Error())
 			return
 		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
 
 		w.Write(responseData)
 	})
