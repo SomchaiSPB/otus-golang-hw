@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"flag"
+	config2 "github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
+	sqlstorage "github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/sql"
 	"os"
 	"os/signal"
 	"syscall"
@@ -17,10 +19,11 @@ import (
 var configFile string
 
 func init() {
-	flag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
+	flag.StringVar(&configFile, "config", "./configs/config.yaml", "Path to configuration file")
 }
 
 func main() {
+	var storage app.Storage
 	flag.Parse()
 
 	if flag.Arg(0) == "version" {
@@ -28,13 +31,21 @@ func main() {
 		return
 	}
 
-	config := NewConfig()
+	config := config2.NewConfig(configFile)
 	logg := logger.New(config.Logger.Level)
 
-	storage := memorystorage.New()
-	calendar := app.New(logg, storage)
+	switch config.App.Storage {
+	case "memory":
+		storage = memorystorage.New()
+	case "sql":
+		storage = sqlstorage.New(config)
+	default:
+		storage = memorystorage.New()
+	}
 
-	server := internalhttp.NewServer(logg, calendar)
+	calendar := app.New(logg, storage, &config.App)
+
+	server := internalhttp.NewServer(logg, calendar, &config.App)
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)

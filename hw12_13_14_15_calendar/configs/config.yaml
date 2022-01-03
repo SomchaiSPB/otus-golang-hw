@@ -1,0 +1,5 @@
+logger:
+  level: "Info"
+app:
+  port: "4000"
+  storage: "memory"

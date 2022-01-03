@@ -1,1 +1,38 @@
+# Docker Compose file Reference (https://docs.docker.com/compose/compose-file/)
+
 version: "3"
+
+services:
+  app:
+    env_file:
+      - .env
+    build:
+      context: ./..
+      dockerfile: build/Dockerfile
+    ports:
+      - "4000:4000"
+    restart: always
+    networks:
+      - backend
+
+  postgres:
+    image: postgres:13.1
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "root" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    restart: always
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=password
+      - APP_DB_USER=docker
+      - APP_DB_PASS=docker
+      - APP_DB_NAME=docker
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d/
+    ports:
+      - "5432:5432"
+
+networks:
+  backend:
