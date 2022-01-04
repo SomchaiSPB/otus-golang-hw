@@ -23,7 +23,7 @@ type Logger interface {
 
 type Storage interface {
 	CreateEvent(event storage.Event) (*storage.Event, error)
-	UpdateEvent(event storage.Event) storage.Event
+	UpdateEvent(event storage.Event) (storage.Event, error)
 	DeleteEvent(id string) error
 	GetEvents() []*storage.Event
 	GetEvent(id string) *storage.Event

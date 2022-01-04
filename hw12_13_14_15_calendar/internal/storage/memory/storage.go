@@ -1,6 +1,7 @@
 package memorystorage
 
 import (
+	"errors"
 	uuid "github.com/nu7hatch/gouuid"
 	"sync"
 	"time"
@@ -36,10 +37,16 @@ func (s *Storage) CreateEvent(event storage.Event) (*storage.Event, error) {
 	return &event, nil
 }
 
-func (s *Storage) UpdateEvent(event storage.Event) storage.Event {
-	s.EventStore[event.ID] = &event
+func (s *Storage) UpdateEvent(event storage.Event) (*storage.Event, error) {
+	existing, ok := s.EventStore[event.ID]
 
-	return event
+	existing = &event
+
+	if !ok {
+		return nil, errors.New("no events found for update")
+	}
+
+	return existing, nil
 }
 
 func (s *Storage) DeleteEvent(id string) error {

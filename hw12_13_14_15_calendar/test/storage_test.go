@@ -28,6 +28,7 @@ func TestStorage(t *testing.T) {
 		require.NotEmpty(t, actual.ID)
 
 		updatedExpected := storage.Event{
+			ID:          actual.ID,
 			Title:       "new title",
 			Duration:    10,
 			Description: "new description",
@@ -35,8 +36,9 @@ func TestStorage(t *testing.T) {
 			UserId:      "123",
 		}
 
-		updatedActual := sut.UpdateEvent(updatedExpected)
+		updatedActual, err := sut.UpdateEvent(updatedExpected)
 
+		require.NoError(t, err)
 		require.Equal(t, updatedExpected.Title, updatedActual.Title)
 		require.Equal(t, updatedExpected.Description, updatedActual.Description)
 		require.Equal(t, updatedExpected.Duration, updatedActual.Duration)
