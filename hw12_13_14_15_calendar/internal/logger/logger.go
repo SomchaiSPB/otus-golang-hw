@@ -2,10 +2,11 @@ package logger
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"os"
 )
 
 func New(conf config.LoggerConf) *zap.Logger {
@@ -14,8 +15,7 @@ func New(conf config.LoggerConf) *zap.Logger {
 	fileEncoder := zapcore.NewJSONEncoder(pe)
 	consoleEncoder := zapcore.NewConsoleEncoder(pe)
 
-	file, err := os.OpenFile(conf.File, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
-
+	file, err := os.OpenFile(conf.File, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0o660)
 	if err != nil {
 		fmt.Println(err)
 		return nil

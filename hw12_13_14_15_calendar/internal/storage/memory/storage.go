@@ -2,11 +2,11 @@ package memorystorage
 
 import (
 	"errors"
-	uuid "github.com/nu7hatch/gouuid"
 	"sync"
 	"time"
 
 	"github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
+	uuid "github.com/nu7hatch/gouuid"
 )
 
 type Storage struct {
@@ -24,7 +24,6 @@ func New() *Storage {
 
 func (s *Storage) CreateEvent(event storage.Event) (*storage.Event, error) {
 	id, err := uuid.NewV4()
-
 	if err != nil {
 		return nil, err
 	}
@@ -40,11 +39,11 @@ func (s *Storage) CreateEvent(event storage.Event) (*storage.Event, error) {
 func (s *Storage) UpdateEvent(event storage.Event) (*storage.Event, error) {
 	existing, ok := s.EventStore[event.ID]
 
-	existing = &event
-
 	if !ok {
 		return nil, errors.New("no events found for update")
 	}
+
+	existing = &event
 
 	return existing, nil
 }

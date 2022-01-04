@@ -4,17 +4,20 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	config "github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
-	sqlstorage "github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/sql"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	config "github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
+	sqlstorage "github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/sql"
+
 	"github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/app"
+	config "github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/server/http"
 	memorystorage "github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/memory"
+	sqlstorage "github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/sql"
 )
 
 var configFile string
@@ -33,7 +36,6 @@ func main() {
 	}
 
 	conf, err := config.NewConfig(configFile)
-
 	if err != nil {
 		fmt.Println(err)
 		return

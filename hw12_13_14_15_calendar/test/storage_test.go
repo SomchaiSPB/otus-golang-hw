@@ -1,14 +1,14 @@
 package test
 
 import (
+	"testing"
+
 	"github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 	memorystorage "github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/memory"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestStorage(t *testing.T) {
-
 	t.Run("storage create/list/get/delete test", func(t *testing.T) {
 		sut := memorystorage.New()
 
@@ -17,7 +17,7 @@ func TestStorage(t *testing.T) {
 			Duration:    1,
 			Description: "description",
 			NotifyIn:    2,
-			UserId:      "123",
+			UserID:      "123",
 		}
 
 		actual, err := sut.CreateEvent(expected)
@@ -33,7 +33,7 @@ func TestStorage(t *testing.T) {
 			Duration:    10,
 			Description: "new description",
 			NotifyIn:    20,
-			UserId:      "123",
+			UserID:      "123",
 		}
 
 		updatedActual, err := sut.UpdateEvent(updatedExpected)

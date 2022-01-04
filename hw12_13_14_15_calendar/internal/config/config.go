@@ -27,7 +27,15 @@ func NewConfig(configPath string) (*Config, error) {
 	var cfg *Config
 
 	f, err := os.Open(configPath)
-	defer f.Close()
+
+	defer func() {
+		cerr := f.Close()
+
+		if cerr != nil {
+			fmt.Println(cerr)
+			return
+		}
+	}()
 
 	if err != nil {
 		fmt.Println(err)

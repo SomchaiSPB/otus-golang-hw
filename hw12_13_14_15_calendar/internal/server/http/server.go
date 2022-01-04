@@ -3,7 +3,6 @@ package internalhttp
 import (
 	"context"
 	"encoding/json"
-	"go.uber.org/zap"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -16,6 +15,7 @@ import (
 	"github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"go.uber.org/zap"
 )
 
 type Server struct {

@@ -30,8 +30,8 @@ func (s *Storage) CreateEvent(event storage.Event) (*storage.Event, error) {
 	return nil, nil
 }
 
-func (s *Storage) UpdateEvent(event storage.Event) storage.Event {
-	return nil
+func (s *Storage) UpdateEvent(event storage.Event) (*storage.Event, error) {
+	return &event, nil
 }
 
 func (s *Storage) DeleteEvent(id string) error {
