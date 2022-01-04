@@ -1,4 +1,5 @@
 logger:
+  file: "test.log"
   level: "Info"
 app:
   host: "0.0.0.0"

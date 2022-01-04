@@ -3,7 +3,8 @@ package main
 import (
 	"context"
 	"flag"
-	config2 "github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
+	"fmt"
+	config "github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	sqlstorage "github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/sql"
 	"os"
 	"os/signal"
@@ -31,21 +32,28 @@ func main() {
 		return
 	}
 
-	config := config2.NewConfig(configFile)
-	logg := logger.New(config.Logger.Level)
+	conf, err := config.NewConfig(configFile)
 
-	switch config.App.Storage {
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	logg := logger.New(conf.Logger)
+
+	switch conf.App.Storage {
 	case "memory":
 		storage = memorystorage.New()
 	case "sql":
-		storage = sqlstorage.New(config)
+		storage = sqlstorage.New(conf)
 	default:
+		fmt.Println("no storage found. Memory storage run by default")
 		storage = memorystorage.New()
 	}
 
-	calendar := app.New(logg, storage, &config.App)
+	calendar := app.New(logg, storage, &conf.App)
 
-	server := internalhttp.NewServer(logg, calendar, &config.App)
+	server := internalhttp.NewServer(logg, calendar, &conf.App)
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)

@@ -3,12 +3,14 @@ package app
 import (
 	"context"
 	"encoding/json"
+	"go.uber.org/zap"
+
 	"github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 )
 
 type App struct {
-	logger  Logger
+	logger  *zap.Logger
 	storage Storage
 	config  *config.AppConfig
 }
@@ -20,14 +22,14 @@ type Logger interface {
 }
 
 type Storage interface {
-	CreateEvent(event storage.Event) error
-	UpdateEvent(event storage.Event) error
+	CreateEvent(event storage.Event) (*storage.Event, error)
+	UpdateEvent(event storage.Event) storage.Event
 	DeleteEvent(id string) error
-	GetEvents() map[string]*storage.Event
-	GetEvent(id string) error
+	GetEvents() []*storage.Event
+	GetEvent(id string) *storage.Event
 }
 
-func New(logger Logger, storage Storage, config *config.AppConfig) *App {
+func New(logger *zap.Logger, storage Storage, config *config.AppConfig) *App {
 	return &App{
 		logger:  logger,
 		storage: storage,
@@ -35,8 +37,10 @@ func New(logger Logger, storage Storage, config *config.AppConfig) *App {
 	}
 }
 
-func (a *App) CreateEvent(ctx context.Context, data []byte) error {
+func (a *App) CreateEvent(ctx context.Context, data []byte) *storage.Event {
 	event := storage.Event{}
+
+	event.UserId = "change me"
 
 	err := json.Unmarshal(data, &event)
 
@@ -44,11 +48,17 @@ func (a *App) CreateEvent(ctx context.Context, data []byte) error {
 		a.logger.Error("failed to unmarshal json")
 	}
 
+	created, err := a.storage.CreateEvent(event)
+
+	if err != nil {
+		a.logger.Error(err.Error())
+	}
+
 	ctx.Done()
 
-	return a.storage.CreateEvent(event)
+	return created
 }
 
-func (a App) ListEvents(ctx context.Context) map[string]*storage.Event {
+func (a App) ListEvents(ctx context.Context) []*storage.Event {
 	return a.storage.GetEvents()
 }

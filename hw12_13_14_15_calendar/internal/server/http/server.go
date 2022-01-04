@@ -3,10 +3,7 @@ package internalhttp
 import (
 	"context"
 	"encoding/json"
-	"github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
-	"github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	"go.uber.org/zap"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -14,25 +11,30 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
+	"github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 type Server struct {
-	logger Logger
+	logger *zap.Logger
 	app    Application
 	config *config.AppConfig
 }
 
-type Logger interface {
-	Info(msg string)
-	Error(msg string)
-}
+//type Logger interface {
+//	Info(msg string)
+//	Error(msg string)
+//}
 
 type Application interface {
-	CreateEvent(ctx context.Context, data []byte) error
-	ListEvents(ctx context.Context) map[string]*storage.Event
+	CreateEvent(ctx context.Context, data []byte) *storage.Event
+	ListEvents(ctx context.Context) []*storage.Event
 }
 
-func NewServer(logger Logger, app Application, config *config.AppConfig) *Server {
+func NewServer(logger *zap.Logger, app Application, config *config.AppConfig) *Server {
 	return &Server{
 		logger: logger,
 		app:    app,
@@ -93,7 +95,7 @@ func (s *Server) service() http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
-	r.Use(loggingMiddleware)
+	r.Use(s.loggingMiddleware)
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))
@@ -101,20 +103,22 @@ func (s *Server) service() http.Handler {
 
 	r.Post("/create", func(w http.ResponseWriter, r *http.Request) {
 		data, err := ioutil.ReadAll(r.Body)
-
 		if err != nil {
 			w.Write([]byte("failed to read post body"))
 			return
 		}
 
-		err = s.app.CreateEvent(context.Background(), data)
+		response := s.app.CreateEvent(context.Background(), data)
 		if err != nil {
 			w.Write([]byte("failed to create event"))
 			return
 		}
 
-		w.Write([]byte("created"))
+		responseData, err := json.Marshal(response)
 
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		w.Write(responseData)
 	})
 
 	r.Get("/list", func(w http.ResponseWriter, r *http.Request) {
@@ -126,14 +130,13 @@ func (s *Server) service() http.Handler {
 		}
 
 		responseData, err := json.Marshal(response)
-
 		if err != nil {
 			s.logger.Error(err.Error())
 			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusCreated)
+		w.WriteHeader(http.StatusOK)
 
 		w.Write(responseData)
 	})
