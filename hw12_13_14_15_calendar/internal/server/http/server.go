@@ -3,6 +3,7 @@ package internalhttp
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -23,11 +24,6 @@ type Server struct {
 	app    Application
 	config *config.AppConfig
 }
-
-//type Logger interface {
-//	Info(msg string)
-//	Error(msg string)
-//}
 
 type Application interface {
 	CreateEvent(ctx context.Context, data []byte) *storage.Event
@@ -57,11 +53,11 @@ func (s *Server) Start(ctx context.Context) error {
 		<-sig
 
 		// Shutdown signal with grace period of 30 seconds
-		shutdownCtx, _ := context.WithTimeout(serverCtx, 30*time.Second)
+		shutdownCtx, cancel := context.WithTimeout(serverCtx, 30*time.Second)
 
 		go func() {
 			<-shutdownCtx.Done()
-			if shutdownCtx.Err() == context.DeadlineExceeded {
+			if errors.Is(shutdownCtx.Err(), context.DeadlineExceeded) {
 				s.logger.Error("graceful shutdown timed out.. forcing exit.")
 			}
 		}()
@@ -71,12 +67,13 @@ func (s *Server) Start(ctx context.Context) error {
 		if err != nil {
 			s.logger.Error(err.Error())
 		}
+		cancel()
 		serverStopCtx()
 	}()
 
 	// Run the server
 	err := server.ListenAndServe()
-	if err != nil && err != http.ErrServerClosed {
+	if err != nil && errors.Is(err, http.ErrServerClosed) {
 		s.logger.Error(err.Error())
 	}
 
@@ -115,6 +112,9 @@ func (s *Server) service() http.Handler {
 		}
 
 		responseData, err := json.Marshal(response)
+		if err != nil {
+			s.logger.Error(err.Error())
+		}
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)

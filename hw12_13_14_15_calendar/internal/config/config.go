@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Logger LoggerConf
 	App    AppConfig
+	Db     DbConfig
 }
 
 type LoggerConf struct {
@@ -21,6 +22,10 @@ type AppConfig struct {
 	Host    string
 	Port    string
 	Storage string
+}
+
+type DbConfig struct {
+	Dsn string
 }
 
 func NewConfig(configPath string) (*Config, error) {

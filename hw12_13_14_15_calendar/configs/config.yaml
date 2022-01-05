@@ -4,4 +4,6 @@ logger:
 app:
   host: "0.0.0.0"
   port: "4000"
-  storage: "memory"
+  storage: "sql"
+db:
+  dsn: "host=localhost port=5432 user=root password=password dbname=docker sslmode=disable"

@@ -37,8 +37,7 @@ func (s *Storage) CreateEvent(event storage.Event) (*storage.Event, error) {
 }
 
 func (s *Storage) UpdateEvent(event storage.Event) (*storage.Event, error) {
-	var existing *storage.Event
-	existing, ok := s.EventStore[event.ID]
+	existing, ok := s.EventStore[event.ID] // ineffectual assignment to existing (ineffassign) WTF?
 
 	if !ok {
 		return nil, errors.New("no events found for update")
@@ -56,7 +55,7 @@ func (s *Storage) DeleteEvent(id string) error {
 }
 
 func (s *Storage) GetEvents() []*storage.Event {
-	var eventsSlice []*storage.Event
+	eventsSlice := make([]*storage.Event, 0, len(s.EventStore))
 
 	for _, event := range s.EventStore {
 		eventsSlice = append(eventsSlice, event)
