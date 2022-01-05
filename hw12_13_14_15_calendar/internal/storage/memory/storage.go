@@ -37,6 +37,7 @@ func (s *Storage) CreateEvent(event storage.Event) (*storage.Event, error) {
 }
 
 func (s *Storage) UpdateEvent(event storage.Event) (*storage.Event, error) {
+	var existing *storage.Event
 	existing, ok := s.EventStore[event.ID]
 
 	if !ok {
