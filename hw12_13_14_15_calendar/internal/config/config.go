@@ -10,7 +10,7 @@ import (
 type Config struct {
 	Logger LoggerConf
 	App    AppConfig
-	Db     DbConfig
+	DB     DBConfig
 }
 
 type LoggerConf struct {
@@ -24,7 +24,7 @@ type AppConfig struct {
 	Storage string
 }
 
-type DbConfig struct {
+type DBConfig struct {
 	Dsn string
 }
 

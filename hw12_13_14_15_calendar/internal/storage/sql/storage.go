@@ -17,7 +17,7 @@ type Storage struct {
 func New(cfg *config.Config) *Storage {
 	return &Storage{
 		sql: &sql.DB{},
-		dsn: cfg.Db.Dsn,
+		dsn: cfg.DB.Dsn,
 	}
 }
 
@@ -36,7 +36,6 @@ func (s *Storage) Close() error {
 }
 
 func (s *Storage) CreateEvent(event storage.Event) (*storage.Event, error) {
-
 	return nil, nil
 }
 
