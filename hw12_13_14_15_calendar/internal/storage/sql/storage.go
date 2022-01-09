@@ -44,7 +44,7 @@ func (s *Storage) UpdateEvent(event storage.Event) (*storage.Event, error) {
 	return &event, nil
 }
 
-func (s *Storage) DeleteEvent(id string) error {
+func (s *Storage) DeleteEvent(id int) error {
 	return nil
 }
 
@@ -52,6 +52,6 @@ func (s *Storage) GetEvents() []*storage.Event {
 	return nil
 }
 
-func (s *Storage) GetEvent(id string) *storage.Event {
+func (s *Storage) GetEvent(id int) *storage.Event {
 	return nil
 }

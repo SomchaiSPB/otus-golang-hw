@@ -17,7 +17,6 @@ func TestStorage(t *testing.T) {
 			Duration:    1,
 			Description: "description",
 			NotifyIn:    2,
-			UserID:      "123",
 		}
 
 		actual, err := sut.CreateEvent(expected)
@@ -27,13 +26,18 @@ func TestStorage(t *testing.T) {
 		require.Equal(t, expected.Description, actual.Description)
 		require.NotEmpty(t, actual.ID)
 
+		actual = sut.GetEvent(actual.ID)
+
+		require.NotNil(t, actual)
+		require.Equal(t, expected.Title, actual.Title)
+
 		updatedExpected := storage.Event{
 			ID:          actual.ID,
 			Title:       "new title",
 			Duration:    10,
 			Description: "new description",
 			NotifyIn:    20,
-			UserID:      "123",
+			UserID:      actual.UserID,
 		}
 
 		updatedActual, err := sut.UpdateEvent(updatedExpected)
@@ -54,5 +58,8 @@ func TestStorage(t *testing.T) {
 
 		require.NoError(t, actualDel)
 		require.Equal(t, 0, len(events))
+
+		err = sut.DeleteEvent(actual.ID)
+		require.NoError(t, err)
 	})
 }

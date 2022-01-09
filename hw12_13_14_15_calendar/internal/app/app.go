@@ -24,9 +24,9 @@ type Logger interface {
 type Storage interface {
 	CreateEvent(event storage.Event) (*storage.Event, error)
 	UpdateEvent(event storage.Event) (*storage.Event, error)
-	DeleteEvent(id string) error
+	DeleteEvent(id int) error
 	GetEvents() []*storage.Event
-	GetEvent(id string) *storage.Event
+	GetEvent(id int) *storage.Event
 }
 
 func New(logger *zap.Logger, storage Storage, config *config.AppConfig) *App {
@@ -39,8 +39,6 @@ func New(logger *zap.Logger, storage Storage, config *config.AppConfig) *App {
 
 func (a *App) CreateEvent(ctx context.Context, data []byte) *storage.Event {
 	event := storage.Event{}
-
-	event.UserID = "change me"
 
 	err := json.Unmarshal(data, &event)
 	if err != nil {

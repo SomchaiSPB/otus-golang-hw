@@ -2,35 +2,28 @@ package memorystorage
 
 import (
 	"errors"
-	"sync"
-	"time"
-
 	"github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
-	uuid "github.com/nu7hatch/gouuid"
+	"sync"
 )
 
 type Storage struct {
 	mu         *sync.RWMutex
 	Event      *storage.Event
-	EventStore map[string]*storage.Event
+	EventStore map[int]*storage.Event
+	LastId     int
 }
 
 func New() *Storage {
 	return &Storage{
 		mu:         &sync.RWMutex{},
-		EventStore: make(map[string]*storage.Event),
+		EventStore: make(map[int]*storage.Event),
+		LastId:     1,
 	}
 }
 
 func (s *Storage) CreateEvent(event storage.Event) (*storage.Event, error) {
-	id, err := uuid.NewV4()
-	if err != nil {
-		return nil, err
-	}
-
-	event.ID = id.String()
-	event.DateTime = time.Now()
-
+	event.ID = s.LastId
+	s.LastId++
 	s.EventStore[event.ID] = &event
 
 	return &event, nil
@@ -48,7 +41,7 @@ func (s *Storage) UpdateEvent(event storage.Event) (*storage.Event, error) {
 	return existing, nil
 }
 
-func (s *Storage) DeleteEvent(id string) error {
+func (s *Storage) DeleteEvent(id int) error {
 	delete(s.EventStore, id)
 
 	return nil
@@ -64,6 +57,6 @@ func (s *Storage) GetEvents() []*storage.Event {
 	return eventsSlice
 }
 
-func (s *Storage) GetEvent(id string) *storage.Event {
+func (s *Storage) GetEvent(id int) *storage.Event {
 	return s.EventStore[id]
 }

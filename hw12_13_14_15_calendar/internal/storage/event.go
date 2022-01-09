@@ -5,13 +5,14 @@ import (
 )
 
 type Event struct {
-	ID          string        `json:"id"`
+	ID          int           `json:"id"`
 	Title       string        `json:"title"`
-	DateTime    time.Time     `json:"dateTime"`
 	Duration    time.Duration `json:"duration"`
 	Description string        `json:"description"`
-	UserID      string        `json:"userId"`
+	UserID      int           `json:"userId"`
 	NotifyIn    int           `json:"notifyIn"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
 type Notification struct {
