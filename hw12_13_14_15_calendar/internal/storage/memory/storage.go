@@ -31,6 +31,7 @@ func (s *Storage) CreateEvent(event storage.Event) (*storage.Event, error) {
 }
 
 func (s *Storage) UpdateEvent(event storage.Event) (*storage.Event, error) {
+	// ineffectual assignment to existing (ineffassign) WTF?
 	existing, ok := s.EventStore[event.ID] //nolint
 
 	if !ok {
