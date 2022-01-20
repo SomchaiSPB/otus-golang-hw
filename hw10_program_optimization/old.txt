@@ -1,0 +1,7 @@
+goos: linux
+goarch: amd64
+pkg: github.com/SomchaiSPB/otus-golang-hw/hw10_program_optimization
+cpu: Intel(R) Core(TM) i7-10750H CPU @ 2.60GHz
+BenchmarkTest-12    	    4794	   2465429 ns/op	   28599 B/op	     361 allocs/op
+PASS
+ok  	github.com/SomchaiSPB/otus-golang-hw/hw10_program_optimization	18.507s

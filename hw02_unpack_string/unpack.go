@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 )
 
 var ErrInvalidString = errors.New("invalid string")
@@ -13,17 +14,19 @@ func Unpack(s string) (string, error) {
 	if len(s) == 0 {
 		return "", nil
 	}
-	if unicode.IsNumber(rune(s[0])) {
+
+	firstRune, _ := utf8.DecodeRuneInString(s)
+	if unicode.IsNumber(firstRune) {
 		return "", ErrInvalidString
 	}
-	runeArr := s
-	var result string
+	runeArr := []rune(s)
+	var result strings.Builder
 	var prev rune
 
 	for i, cur := range runeArr {
 		if i < 1 {
 			prev = cur
-			result += string(cur)
+			result.WriteRune(cur)
 			continue
 		}
 		if unicode.IsNumber(prev) && unicode.IsNumber(cur) {
@@ -32,16 +35,20 @@ func Unpack(s string) (string, error) {
 
 		if unicode.IsNumber(cur) {
 			if cur == 48 {
-				result = result[:i-1]
+				s := []rune(result.String())
+				s = s[:i-1]
+				result.Reset()
+				result.WriteString(string(s))
 				continue
 			}
 
 			cur, _ := strconv.ParseInt(string(cur), 10, 32)
-			result += strings.Repeat(string(runeArr[i-1]), int(cur)-1)
+
+			result.WriteString(strings.Repeat(string(runeArr[i-1]), int(cur)-1))
 		} else {
-			result += string(cur)
+			result.WriteRune(cur)
 		}
 		prev = cur
 	}
-	return result, nil
+	return result.String(), nil
 }
