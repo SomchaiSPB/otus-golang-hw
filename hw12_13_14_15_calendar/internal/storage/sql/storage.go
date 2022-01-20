@@ -35,7 +35,7 @@ func (s *Storage) Close() error {
 	return s.sql.Close()
 }
 
-func (s *Storage) CreateEvent(event storage.Event) (*storage.Event, error) {
+func (s *Storage) CreateEvent(event storage.Event, ctx *context.Context) (*storage.Event, error) {
 	return nil, nil
 }
 

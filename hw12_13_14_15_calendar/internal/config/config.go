@@ -33,6 +33,11 @@ func NewConfig(configPath string) (*Config, error) {
 
 	f, err := os.Open(configPath)
 
+	if err != nil {
+		fmt.Println(err)
+		return cfg, err
+	}
+
 	defer func() {
 		cerr := f.Close()
 
@@ -41,11 +46,6 @@ func NewConfig(configPath string) (*Config, error) {
 			return
 		}
 	}()
-
-	if err != nil {
-		fmt.Println(err)
-		return cfg, err
-	}
 
 	decoder := yaml.NewDecoder(f)
 	err = decoder.Decode(&cfg)

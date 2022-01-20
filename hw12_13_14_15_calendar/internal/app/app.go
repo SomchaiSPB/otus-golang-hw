@@ -22,7 +22,7 @@ type Logger interface {
 }
 
 type Storage interface {
-	CreateEvent(event storage.Event) (*storage.Event, error)
+	CreateEvent(event storage.Event, ctx *context.Context) (*storage.Event, error)
 	UpdateEvent(event storage.Event) (*storage.Event, error)
 	DeleteEvent(id int) error
 	GetEvents() []*storage.Event
@@ -45,12 +45,10 @@ func (a *App) CreateEvent(ctx context.Context, data []byte) *storage.Event {
 		a.logger.Error("failed to unmarshal json")
 	}
 
-	created, err := a.storage.CreateEvent(event)
+	created, err := a.storage.CreateEvent(event, &ctx)
 	if err != nil {
 		a.logger.Error(err.Error())
 	}
-
-	ctx.Done()
 
 	return created
 }
