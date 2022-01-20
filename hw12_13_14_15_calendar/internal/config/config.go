@@ -32,7 +32,6 @@ func NewConfig(configPath string) (*Config, error) {
 	var cfg *Config
 
 	f, err := os.Open(configPath)
-
 	if err != nil {
 		fmt.Println(err)
 		return cfg, err
