@@ -1,0 +1,9 @@
+logger:
+  file: "test.log"
+  level: "Info"
+app:
+  host: "0.0.0.0"
+  port: "4000"
+  storage: "memory"
+db:
+  dsn: "host=localhost port=5432 user=root password=password dbname=docker sslmode=disable"

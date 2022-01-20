@@ -3,24 +3,28 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
 	"github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/app"
+	"github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/server/http"
 	memorystorage "github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/memory"
+	sqlstorage "github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/sql"
 )
 
 var configFile string
 
 func init() {
-	flag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
+	flag.StringVar(&configFile, "config", "./configs/config.yaml", "Path to configuration file")
 }
 
 func main() {
+	var storage app.Storage
 	flag.Parse()
 
 	if flag.Arg(0) == "version" {
@@ -28,13 +32,27 @@ func main() {
 		return
 	}
 
-	config := NewConfig()
-	logg := logger.New(config.Logger.Level)
+	conf, err := config.NewConfig(configFile)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-	storage := memorystorage.New()
-	calendar := app.New(logg, storage)
+	logg := logger.New(conf.Logger)
 
-	server := internalhttp.NewServer(logg, calendar)
+	switch conf.App.Storage {
+	case "memory":
+		storage = memorystorage.New()
+	case "sql":
+		storage = sqlstorage.New(conf)
+	default:
+		fmt.Println("no storage found. Memory storage run by default")
+		storage = memorystorage.New()
+	}
+
+	calendar := app.New(logg, storage, &conf.App)
+
+	server := internalhttp.NewServer(logg, calendar, &conf.App)
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
