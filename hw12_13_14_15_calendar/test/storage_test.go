@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/SomchaiSPB/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
@@ -8,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestStorage(t *testing.T) {
+func TestMemoryStorage(t *testing.T) {
 	t.Run("storage create/list/get/delete test", func(t *testing.T) {
 		sut := memorystorage.New()
 
@@ -19,7 +20,9 @@ func TestStorage(t *testing.T) {
 			NotifyIn:    2,
 		}
 
-		actual, err := sut.CreateEvent(expected)
+		ctx := context.Background()
+
+		actual, err := sut.CreateEvent(expected, &ctx)
 
 		require.NoError(t, err)
 		require.Equal(t, expected.Title, actual.Title)
@@ -61,5 +64,11 @@ func TestStorage(t *testing.T) {
 
 		err = sut.DeleteEvent(actual.ID)
 		require.NoError(t, err)
+	})
+}
+
+func TestSQLStorage(t *testing.T) {
+	t.Run("storage create/list/get/delete test", func(t *testing.T) {
+		//
 	})
 }
