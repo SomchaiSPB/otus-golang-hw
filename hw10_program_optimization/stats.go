@@ -1,14 +1,15 @@
 package hw10programoptimization
 
 import (
-	"encoding/json"
-	"fmt"
+	"bufio"
+	"errors"
 	"io"
-	"io/ioutil"
-	"regexp"
 	"strings"
+
+	"github.com/mailru/easyjson"
 )
 
+//easyjson:json
 type User struct {
 	ID       int
 	Name     string
@@ -22,46 +23,55 @@ type User struct {
 type DomainStat map[string]int
 
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
-	u, err := getUsers(r)
-	if err != nil {
-		return nil, fmt.Errorf("get users error: %w", err)
-	}
-	return countDomains(u, domain)
-}
+	userCh := make(chan *User)
+	errCh := make(chan error)
 
-type users [100_000]User
+	go getUsers(r, userCh, errCh)
 
-func getUsers(r io.Reader) (result users, err error) {
-	content, err := ioutil.ReadAll(r)
-	if err != nil {
-		return
-	}
+	res := countDomains(userCh, domain)
 
-	lines := strings.Split(string(content), "\n")
-	for i, line := range lines {
-		var user User
-		if err = json.Unmarshal([]byte(line), &user); err != nil {
-			return
-		}
-		result[i] = user
-	}
-	return
-}
-
-func countDomains(u users, domain string) (DomainStat, error) {
-	result := make(DomainStat)
-
-	for _, user := range u {
-		matched, err := regexp.Match("\\."+domain, []byte(user.Email))
+	for err := range errCh {
 		if err != nil {
 			return nil, err
 		}
+	}
 
-		if matched {
-			num := result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])]
-			num++
-			result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])] = num
+	return res, nil
+}
+
+func getUsers(r io.Reader, ch chan<- *User, errCh chan error) {
+	reader := bufio.NewReader(r)
+
+	for {
+		line, _, er := reader.ReadLine()
+		var user User
+		if er != nil {
+			if errors.Is(er, io.EOF) {
+				break
+			}
+			errCh <- er
+			return
+		}
+		_ = easyjson.Unmarshal(line, &user)
+
+		ch <- &user
+	}
+
+	close(ch)
+	close(errCh)
+}
+
+func countDomains(u <-chan *User, domain string) DomainStat {
+	result := make(DomainStat, len(u))
+
+	for user := range u {
+		strDomain := strings.Split(user.Email, ".")
+
+		if strDomain[len(strDomain)-1] == domain {
+			key := strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])
+			result[key]++
 		}
 	}
-	return result, nil
+
+	return result
 }

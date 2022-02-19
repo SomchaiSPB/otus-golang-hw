@@ -1,0 +1,8 @@
+benchmark            old ns/op     new ns/op     delta
+BenchmarkTest-12     2465429       2234          -99.91%
+
+benchmark            old allocs     new allocs     delta
+BenchmarkTest-12     361            6              -98.34%
+
+benchmark            old bytes     new bytes     delta
+BenchmarkTest-12     28599         4496          -84.28%
